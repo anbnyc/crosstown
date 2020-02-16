@@ -5,7 +5,7 @@
 
 ### query functions
 
-#### results
+#### results tables
 
 ** Unique candidates **
 `select distinct event, office, district_key, unit_name from results order by event, office, district_key;`
@@ -13,6 +13,11 @@
 
 ** Vote count **
 `SELECT distinct unit_name, sum(tally) FROM results WHERE unit_name not in ('Public Counter', 'Manually Counted Emergency', 'Absentee / Military', 'Affidavit') GROUP BY unit_name;` (add more WHERE to get specific race)
+
+#### materialized views
+
+** results_candidate_pct **
+Sum and percent of votes for candidates
 
 ### qa functions
 
