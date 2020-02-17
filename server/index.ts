@@ -23,15 +23,24 @@ app.set("port", PORT);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "build")));
 
+const whereConcatenator = ([k, v]) => {
+  if (v === "null") {
+    return `${k} is null`;
+  }
+  if (k.slice(-4) === "-min") {
+    return `${k.slice(0, -4)} >= ${v}`;
+  }
+  if (k.slice(-4) === "-max") {
+    return `${k.slice(0, -4)} <= ${v}`;
+  }
+  return `${k} in (${v.split(",").map(d => `'${d.replace("'", "''")}'`)})`;
+};
+
 const tableHandler = table => (req, res) => {
   console.log("Request received: ", table);
   const { query } = req;
   const WHERE = Object.entries(query)
-    .map(([k, v]) => {
-      return v === "null"
-        ? `${k} is null`
-        : `${k} in (${v.split(",").map(d => `'${d}'`)})`;
-    })
+    .map(whereConcatenator)
     .join(" and ");
 
   const q = `SELECT * FROM ${table} ${WHERE.length ? "WHERE " + WHERE : ""};`;
@@ -51,5 +60,65 @@ app.get("/api/datasets", tableHandler("datasets"));
 app.get("/api/pct", tableHandler("results_candidate_pct"));
 app.get("/api/menu", tableHandler("results_menu_options"));
 app.get("/api/aded", tableHandler("results_aded_list"));
+
+/**
+ * This endpoint takes a special callback
+ * because it finds the intersection of
+ * all the AD/ED combinations
+ * that satisfy each query
+ */
+app.get("/api/filter", (req, res) => {
+  const { query } = req;
+  let subQueries = [{}];
+  for (const key in query) {
+    if (Array.isArray(query[key])) {
+      query[key].forEach((value, i) => {
+        if (!subQueries[i]) {
+          subQueries[i] = {};
+        }
+        subQueries[i][key] = value;
+      });
+    } else {
+      subQueries[0][key] = query[key];
+    }
+  }
+
+  const PREDICATE = subQueries.map(
+    subQuery =>
+      `SELECT ad, ed
+        FROM results_candidate_pct
+        WHERE ` +
+      Object.entries(subQuery)
+        .map(whereConcatenator)
+        .join(" and ")
+  ).join(`
+      INTERSECT
+    `);
+
+  // see MATERIALIZED VIEW results_aded_list
+  const q = `SELECT DISTINCT
+    CONCAT(
+      ad,
+      RIGHT(
+        CONCAT(
+          '000',
+          ed
+        ), 3
+      )
+    ) as aded
+  FROM (${PREDICATE}) as foo;`;
+
+  client
+    .query(q)
+    .catch(e => console.error(e.stack))
+    .then(data => {
+      res.send(JSON.stringify(data.rows));
+      console.log(
+        "Request responded: [filtered results_candidate_pct]",
+        data.rows.length,
+        " rows"
+      );
+    });
+});
 
 app.listen(app.get("port"), () => console.log(`app listening on port ${PORT}`));

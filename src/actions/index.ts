@@ -8,7 +8,8 @@ const {
   SET_MENU_DATA,
   ADD_PCT_DATA,
   SET_ADED_DATA,
-  TOGGLE_QUERY_COMPLETE,
+  ADD_QUERY,
+  REMOVE_QUERY,
   SET_QUERY_PROP,
   CLEAR_QUERY_PROP,
   SET_QUERY_MIN_MAX,
@@ -18,6 +19,7 @@ const dataTypeLookup: { [key: string]: string } = {
   menu: SET_MENU_DATA,
   pct: ADD_PCT_DATA,
   aded: SET_ADED_DATA,
+  filter: SET_ADED_DATA,
 };
 
 const API_PATH = "http://localhost:4000/api";
@@ -38,7 +40,7 @@ export const asyncCallEndpoint = (
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch: any) => {
   fetch(
     `${API_PATH}/${endpoint}?${query
-      .map(([k, v]: [string, string]) => k + "=" + v)
+      .map(([k, v]: [string, string, string]) => `${k}=${v}`)
       .join("&")}`
   )
     .catch(e => console.log("error in asyncCallEndpoint:", e))
@@ -55,8 +57,19 @@ export const getAsyncResponse = makeActionCreator(
   "data",
   "query"
 );
-export const setQueryProp = makeActionCreator(SET_QUERY_PROP, "key", "value");
-export const clearQueryProp = makeActionCreator(CLEAR_QUERY_PROP, "key");
+export const addQuery = makeActionCreator(ADD_QUERY);
+export const removeQuery = makeActionCreator(REMOVE_QUERY, "index");
+export const setQueryProp = makeActionCreator(
+  SET_QUERY_PROP,
+  "index",
+  "key",
+  "value"
+);
+export const clearQueryProp = makeActionCreator(
+  CLEAR_QUERY_PROP,
+  "index",
+  "key"
+);
 export const setQueryMinMax = makeActionCreator(
   SET_QUERY_MIN_MAX,
   "index",

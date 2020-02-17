@@ -10,6 +10,7 @@ import {
   axisLeft,
   brushX,
   event,
+  format,
 } from "d3";
 import { Constants, Layout } from "../../constants";
 
@@ -44,7 +45,7 @@ const Histogram = ({ data, onBrushEnd }: HistogramProps) => {
     .range([Layout.H - Layout.M, Layout.M]);
 
   function brushed() {
-    const filter = event.selection.map(x.invert);
+    const filter = (event.selection || []).map(x.invert);
     onBrushEnd(filter);
   }
 
@@ -53,6 +54,8 @@ const Histogram = ({ data, onBrushEnd }: HistogramProps) => {
       //@ts-ignore
       axisBottom(x)
         .ticks(Layout.W / 80)
+        //@ts-ignore
+        .tickFormat(format(".2p"))
         .tickSizeOuter(0)
     );
     select(yAxis.current)

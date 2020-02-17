@@ -12,7 +12,6 @@ const App: React.FC = () => {
 
   useEffect(() => {
     dispatch(asyncCallEndpoint("menu", []));
-    dispatch(asyncCallEndpoint("aded", []));
   }, []);
 
   // TODO window resize

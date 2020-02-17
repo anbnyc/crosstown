@@ -1,29 +1,26 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useRef } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { State } from "../../interfaces";
 import mapboxgl from "mapbox-gl";
 import "./styles.scss";
 
 import mn from "./mn.json";
+import { asyncCallEndpoint } from "../../actions";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN as string;
 
 // https://docs.mapbox.com/help/tutorials/use-mapbox-gl-js-with-react/
 // https://docs.mapbox.com/mapbox-gl-js/example/using-box-queryrenderedfeatures/
 const Map = () => {
-  const [mbLoaded, setMbLoaded] = useState(false);
+  const dispatch = useDispatch();
   const mapSettings = useSelector((state: State) => {
     return state.ui.map;
   });
-  const matches = useSelector((state: State) => state.data.matches).slice(
-    0,
-    500
-  );
+  const matches = useSelector((state: State) => state.data.matches);
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
 
   useEffect(() => {
-    console.log(matches);
     //@ts-ignore
     const map = new mapboxgl.Map({
       container: mapContainer.current,
@@ -43,8 +40,9 @@ const Map = () => {
         type: "fill",
         source: "mn",
         paint: {
-          "fill-color": "#f03",
+          "fill-color": "#ddd",
           "fill-outline-color": "#fff",
+          "fill-opacity": 0.8,
         },
       });
 
@@ -53,14 +51,17 @@ const Map = () => {
         type: "fill",
         source: "mn",
         paint: {
-          "fill-color": "#30f",
+          "fill-color": "#3f3",
           "fill-outline-color": "#fff",
+          "fill-opacity": 0.8,
         },
-        filter: ["in", "elect_dist", ...matches],
+        filter: ["in", "elect_dist"],
       });
 
-      setMbLoaded(true);
-      console.log("load complete");
+      // don't request matches until map has finished loading
+      // to ensure the below useEffect catches it
+      // (solves problem where load was finishing after matches returned)
+      dispatch(asyncCallEndpoint("aded", []));
     });
 
     mapRef.current = map;
@@ -68,7 +69,7 @@ const Map = () => {
 
   useEffect(() => {
     const map = mapRef.current;
-    if (map && mbLoaded) {
+    if (map && matches.length) {
       // @ts-ignore
       map.setFilter("eds-in-filter", ["in", "elect_dist", ...matches]);
     }

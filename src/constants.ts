@@ -6,6 +6,8 @@ export const Constants = {
   ADD_PCT_DATA: "Add Pct Data",
   SET_ADED_DATA: "Set AD/ED Data",
 
+  ADD_QUERY: "Add Query",
+  REMOVE_QUERY: "Remove Query",
   SET_QUERY_PROP: "Set Query Prop",
   CLEAR_QUERY_PROP: "Clear Query Prop",
   TOGGLE_QUERY_COMPLETE: "Toggle Query Complete",
@@ -30,5 +32,5 @@ export const queryOrder: {
 export const Layout = {
   W: 300,
   H: 150,
-  M: 20,
+  M: 30,
 };

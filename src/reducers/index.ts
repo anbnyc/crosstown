@@ -8,6 +8,8 @@ const {
   SET_MENU_DATA,
   ADD_PCT_DATA,
   SET_ADED_DATA,
+  ADD_QUERY,
+  REMOVE_QUERY,
   SET_QUERY_PROP,
   CLEAR_QUERY_PROP,
   SET_QUERY_MIN_MAX,
@@ -45,6 +47,9 @@ function uiReducer(state = InitialState.ui, a: Action) {
   }
 }
 
+const arrayToObj = (arr: [string, string][]): { [key: string]: string } =>
+  arr.reduce((t, [k, v]) => ({ ...t, [k]: v }), {});
+
 function dataReducer(state = InitialState.data, a: Action) {
   switch (a.type) {
     case GET_ASYNC_RESPONSE: {
@@ -65,11 +70,21 @@ function dataReducer(state = InitialState.data, a: Action) {
           };
         }
         case ADD_PCT_DATA: {
-          const nextQuery = state.queries[state.queries.length - 1];
+          const apiQueryObj = arrayToObj(a.payload.query);
+          const nextQueryIndex = state.queries.findIndex(d =>
+            d.race.length
+              ? d.race.reduce(
+                  (t, { key, value }) => t && apiQueryObj[key] === value,
+                  true
+                )
+              : false
+          );
+          const nextQuery = state.queries[nextQueryIndex];
+          console.log(nextQueryIndex, nextQuery);
           return {
             ...state,
             queries: [
-              ...state.queries.slice(0, -1),
+              ...state.queries.slice(0, nextQueryIndex),
               {
                 ...nextQuery,
                 data: a.payload.data.map(
@@ -82,15 +97,6 @@ function dataReducer(state = InitialState.data, a: Action) {
                   })
                 ),
               },
-              // add a new Query when old one is complete
-              ...(nextQuery.complete
-                ? [
-                    {
-                      complete: false,
-                      race: [],
-                    },
-                  ]
-                : []),
             ],
           };
         }
@@ -105,50 +111,76 @@ function dataReducer(state = InitialState.data, a: Action) {
         }
       }
     }
-    case SET_QUERY_PROP: {
-      const currentQuery = state.queries[state.queries.length - 1];
+    case ADD_QUERY: {
       return {
         ...state,
         queries: [
-          ...state.queries.slice(0, -1),
+          ...state.queries,
           {
-            ...currentQuery,
-            race: [...currentQuery.race, { ...a.payload }],
-            complete: currentQuery.race.length + 1 === queryOrder.length,
+            complete: false,
+            race: [],
           },
         ],
       };
     }
+    case REMOVE_QUERY: {
+      const { index } = a.payload;
+      return {
+        ...state,
+        queries: [
+          ...state.queries.slice(0, index),
+          ...state.queries.slice(index + 1),
+        ],
+      };
+    }
+    case SET_QUERY_PROP: {
+      const { index, key, value } = a.payload;
+      const currentQuery = state.queries[index];
+      console.log(index, key, value, currentQuery);
+      return {
+        ...state,
+        queries: [
+          ...state.queries.slice(0, index),
+          {
+            ...currentQuery,
+            race: [...currentQuery.race, { key, value }],
+            complete: currentQuery.race.length + 1 === queryOrder.length,
+          },
+          ...state.queries.slice(index + 1),
+        ],
+      };
+    }
     case CLEAR_QUERY_PROP: {
-      const currentQuery = state.queries[state.queries.length - 1];
-      const indexOfKey = currentQuery.race.findIndex(
-        d => d.key === a.payload.key
-      );
+      const { index, key } = a.payload;
+      const currentQuery = state.queries[index];
+      const indexOfKey = currentQuery.race.findIndex(d => d.key === key);
       delete currentQuery.data;
       return {
         ...state,
         queries: [
-          ...state.queries.slice(0, -1),
+          ...state.queries.slice(0, index),
           {
             ...currentQuery,
             race: [...currentQuery.race.slice(0, indexOfKey)],
             complete: false,
           },
+          ...state.queries.slice(index + 1),
         ],
       };
     }
     case SET_QUERY_MIN_MAX: {
-      const currentQuery = state.queries[a.payload.index];
+      const { index, min, max } = a.payload;
+      const currentQuery = state.queries[index];
       return {
         ...state,
         queries: [
-          ...state.queries.slice(0, a.payload.index),
+          ...state.queries.slice(0, index),
           {
             ...currentQuery,
-            min: a.payload.min,
-            max: a.payload.max,
+            min: min,
+            max: max,
           },
-          ...state.queries.slice(a.payload.index + 1),
+          ...state.queries.slice(index + 1),
         ],
       };
     }
