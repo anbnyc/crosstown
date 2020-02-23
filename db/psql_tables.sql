@@ -84,3 +84,7 @@ CREATE MATERIALIZED VIEW results_aded_list AS
 		) as aded
 	FROM results_candidate_pct
 	ORDER BY aded;
+
+REFRESH MATERIALIZED VIEW results_candidate_pct;
+REFRESH MATERIALIZED VIEW results_menu_options;
+REFRESH MATERIALIZED VIEW results_aded_list;
