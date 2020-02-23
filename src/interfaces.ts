@@ -4,6 +4,7 @@ export type AD_ED = {
 };
 
 export type raceKeys =
+  | "year"
   | "event"
   | "office"
   | "unit_name"
@@ -23,20 +24,23 @@ export interface EDQuery {
   data?: any[];
 }
 
+export type DataMenu = Map<string, Map<string, any> | RaceQuery>;
+
 export interface State {
   ui: {
     isMobile: boolean;
-    panelOpen: boolean;
+    isPanelOpen: boolean;
     map: {
       zoom: number;
       lat: number;
-      lng: number;
+      lngDesktop: number;
+      lngMobile: number;
     };
   };
   data: {
     matches: AD_ED[];
     queries: EDQuery[];
-    menu: Map<string, Map<string, any> | RaceQuery>;
+    menu: DataMenu;
   };
 }
 

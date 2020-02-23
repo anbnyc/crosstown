@@ -1,3 +1,5 @@
+@import "../variables.scss";
+
 .Panel {
   position: absolute;
   z-index: 1;
@@ -5,9 +7,14 @@
   padding: 10px;
   height: 90%;
   width: 45%;
+  transition: right 0.5s;
 
-  @media (max-width: 768px) {
+  @media (max-width: $max-width-mobile) {
     width: 95%;
+    right: 0%;
+    &.open {
+      right: -100%;
+    }
   }
 
   background-color: white;
@@ -24,6 +31,34 @@
     overflow-y: scroll;
     // background-color: #ddd;
     box-shadow: inset 1px 1px 2px 1px #888888;
+
+    .query {
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 10px;
+      &-line {
+        margin: 2px 0px;
+        &-header {
+          display: inline-block;
+          width: 70px;
+          font-size: 12px;
+          padding-right: 10px;
+          text-align: right;
+
+          @media (max-width: $max-width-mobile) {
+            font-size: 10px;
+            width: 50px;
+          }
+        }
+      }
+
+      @media (max-width: $max-width-mobile) {
+        &-dropdown,
+        &-button {
+          font-size: 10px;
+        }
+      }
+    }
   }
 
   .footer {
@@ -31,16 +66,8 @@
     font-size: 14px;
     position: absolute;
     top: 95%;
-  }
-
-  .query {
-    &-line {
-      margin: 2px 0px;
-      &-header {
-        font-size: 14px;
-        display: inline-block;
-        width: 50px;
-      }
+    @media (max-width: $max-width-mobile) {
+      font-size: 10px;
     }
   }
 

@@ -2,9 +2,11 @@ import React, { useEffect, useRef } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { State } from "../../interfaces";
 import mapboxgl from "mapbox-gl";
+import { geoCentroid } from "d3";
 import "./styles.scss";
 
 import mn from "./mn.json";
+import mnad from "./mnad.json";
 import { asyncCallEndpoint } from "../../actions";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN as string;
@@ -16,6 +18,7 @@ const Map = () => {
   const mapSettings = useSelector((state: State) => {
     return state.ui.map;
   });
+  const isMobile = useSelector((state: State) => state.ui.isMobile);
   const matches = useSelector((state: State) => state.data.matches);
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
@@ -25,7 +28,10 @@ const Map = () => {
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: "mapbox://styles/mapbox/streets-v11",
-      center: [mapSettings.lng, mapSettings.lat],
+      center: [
+        isMobile ? mapSettings.lngMobile : mapSettings.lngDesktop,
+        mapSettings.lat,
+      ],
       zoom: mapSettings.zoom,
     });
 
@@ -33,6 +39,10 @@ const Map = () => {
       map.addSource("mn", {
         type: "geojson",
         data: mn,
+      });
+      map.addSource("mnad", {
+        type: "geojson",
+        data: mnad,
       });
 
       map.addLayer({
@@ -58,6 +68,35 @@ const Map = () => {
         filter: ["in", "elect_dist"],
       });
 
+      map.addLayer({
+        id: "ads",
+        type: "fill",
+        source: "mnad",
+        paint: {
+          "fill-color": "#fff",
+          "fill-outline-color": "#f00",
+          "fill-opacity": 0.2,
+        },
+      });
+
+      // https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/
+      map.on("click", "eds-in-filter", function(e: any) {
+        var coordinates = geoCentroid(e.features[0]);
+        const { elect_dist } = e.features[0].properties;
+
+        new mapboxgl.Popup()
+          .setLngLat(coordinates)
+          .setHTML(
+            `<div style="padding-top:5px;">
+              AD: <strong>${elect_dist.slice(0, 2)}</strong>
+            </div>
+            <div>
+              ED: <strong>${+elect_dist.slice(2)}</strong>
+            </div>`
+          )
+          .addTo(map);
+      });
+
       // don't request matches until map has finished loading
       // to ensure the below useEffect catches it
       // (solves problem where load was finishing after matches returned)
@@ -74,6 +113,19 @@ const Map = () => {
       map.setFilter("eds-in-filter", ["in", "elect_dist", ...matches]);
     }
   }, [matches]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map) {
+      //@ts-ignore
+      map.flyTo({
+        center: [
+          isMobile ? mapSettings.lngMobile : mapSettings.lngDesktop,
+          mapSettings.lat,
+        ],
+      });
+    }
+  }, [isMobile, mapSettings]);
 
   return <div className="Map" ref={mapContainer}></div>;
 };

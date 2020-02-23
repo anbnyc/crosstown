@@ -28,28 +28,27 @@ const Histogram = ({ data, onBrushEnd }: HistogramProps) => {
   const yAxis = useRef(null);
   const brushG = useRef(null);
 
-  const x = scaleLinear()
-    //@ts-ignore
-    .domain(extent(data, d => d[TALLY_PCT]))
-    .range([Layout.M, Layout.W - Layout.M]);
-
-  const bins = histogram()
-    //@ts-ignore
-    .domain(x.domain())
-    .thresholds(x.ticks(40))(data.map(d => d[TALLY_PCT]));
-
-  const y = scaleLinear()
-    //@ts-ignore
-    .domain([0, max(bins, d => d.length)])
-    .nice()
-    .range([Layout.H - Layout.M, Layout.M]);
-
-  function brushed() {
-    const filter = (event.selection || []).map(x.invert);
-    onBrushEnd(filter);
-  }
-
   useEffect(() => {
+    const x = scaleLinear()
+      //@ts-ignore
+      .domain(extent(data, d => d[TALLY_PCT]))
+      .range([Layout.M, Layout.W - Layout.M]);
+
+    const bins = histogram()
+      //@ts-ignore
+      .domain(x.domain())
+      .thresholds(x.ticks(40))(data.map(d => d[TALLY_PCT]));
+
+    const y = scaleLinear()
+      //@ts-ignore
+      .domain([0, max(bins, d => d.length)])
+      .nice()
+      .range([Layout.H - Layout.M, Layout.M]);
+
+    const brushed = () => {
+      onBrushEnd((event.selection || []).map(x.invert));
+    };
+
     select(xAxis.current).call(
       //@ts-ignore
       axisBottom(x)
@@ -81,7 +80,7 @@ const Histogram = ({ data, onBrushEnd }: HistogramProps) => {
         ])
         .on("end", brushed)
     );
-  }, []);
+  }, [data, onBrushEnd]);
 
   return (
     <svg>

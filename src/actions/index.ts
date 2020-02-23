@@ -13,6 +13,8 @@ const {
   SET_QUERY_PROP,
   CLEAR_QUERY_PROP,
   SET_QUERY_MIN_MAX,
+  TOGGLE_PANEL_OPEN,
+  SET_IS_MOBILE,
 } = Constants;
 
 const dataTypeLookup: { [key: string]: string } = {
@@ -76,6 +78,9 @@ export const setQueryMinMax = makeActionCreator(
   "min",
   "max"
 );
+
+export const togglePanelOpen = makeActionCreator(TOGGLE_PANEL_OPEN);
+export const setIsMobile = makeActionCreator(SET_IS_MOBILE, "isMobile");
 
 // export const toggleQueryComplete = makeActionCreator(
 //   TOGGLE_QUERY_COMPLETE

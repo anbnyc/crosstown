@@ -1,2 +1,8 @@
 .App {
+  .toggle-panel {
+    z-index: 5;
+    position: absolute;
+    top: 15px;
+    right: 20px;
+  }
 }

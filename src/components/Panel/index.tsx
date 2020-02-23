@@ -13,7 +13,11 @@ import {
   addQuery,
   removeQuery,
 } from "../../actions";
-import { displayBlankAsNA } from "../../utils";
+import {
+  displayBlankAsNA,
+  truthyOrZero,
+  nextDropdownOptionsFromRace,
+} from "../../utils";
 
 import Histogram from "../Histogram";
 
@@ -22,6 +26,7 @@ const Panel: React.FC = () => {
 
   const queries = useSelector((state: State) => state.data.queries);
   const menu = useSelector((state: State) => state.data.menu);
+  const isPanelOpen = useSelector((state: State) => state.ui.isPanelOpen);
 
   const addToNewQuery = (index: number, nextKey: string, nextValue: string) => {
     dispatch(setQueryProp(index, nextKey, nextValue));
@@ -29,7 +34,9 @@ const Panel: React.FC = () => {
     if (queries[index].race.length + 1 === queryOrder.length) {
       dispatch(
         asyncCallEndpoint("pct", [
-          ...queries[index].race.map(({ key, value }) => [key, value]),
+          ...queries[index].race
+            .filter(e => e.key !== "year") // synthetic variable for organizing dropdown menu
+            .map(({ key, value }) => [key, value]),
           [nextKey, nextValue],
         ])
       );
@@ -62,9 +69,11 @@ const Panel: React.FC = () => {
       },
       ...queries.slice(index + 1),
     ]
-      .filter(d => d.complete && d.min && d.max)
+      .filter(d => d.complete && truthyOrZero(d.min) && truthyOrZero(d.max))
       .map(d => [
-        ...d.race.map(({ key, value }) => [key, value]),
+        ...d.race
+          .filter(e => e.key !== "year") // synthetic variable for organizing dropdown menu
+          .map(({ key, value }) => [key, value]),
         ["tally_pct-min", d.min],
         ["tally_pct-max", d.max],
       ])
@@ -78,34 +87,21 @@ const Panel: React.FC = () => {
   };
 
   return (
-    <div className="Panel">
+    <div className={"Panel " + (isPanelOpen ? "open" : "")}>
       <div className="header">
         <h2>Crosstown</h2>
         <p>Build visual queries of NYC election results.</p>
       </div>
       <div className="body">
         {queries.map((d, i) => {
-          let queryDropdownOptions: string[] = [];
-          if (d.race.length === 0) {
-            queryDropdownOptions = Array.from(menu.keys());
-          } else if (!d.complete) {
-            // @ts-ignore // TODO fix
-            const mapOrArray = d.race.reduce((t, v) => t.get(v.value), menu);
-
-            // check if we've reached the deepest level of the nested Map
-            // if so, just provide the values Array
-            // else, give the keys so we can go a level deeper
-            queryDropdownOptions =
-              mapOrArray instanceof Map
-                ? Array.from(mapOrArray.keys())
-                : mapOrArray;
-          }
+          const queryDropdownOptions = nextDropdownOptionsFromRace(menu, d);
           return (
             <div className="query" key={`query-${i}`}>
               {d.race.map(({ key, value }, j) => (
                 <div key={key} className="query-line">
                   <div className="query-line-header">{queryOrder[j].label}</div>
                   <Button
+                    className="query-button"
                     onClick={() => removeFromNewQuery(i, key)}
                     variant="secondary"
                   >
@@ -115,13 +111,18 @@ const Panel: React.FC = () => {
               ))}
               {queryDropdownOptions.length ? (
                 <Dropdown>
-                  <Dropdown.Toggle variant="primary" id="dropdown-basic">
+                  <Dropdown.Toggle
+                    variant="primary"
+                    id="dropdown-basic"
+                    className="query-dropdown"
+                  >
                     {queryOrder[d.race.length].label}
                   </Dropdown.Toggle>
 
                   <Dropdown.Menu>
                     {queryDropdownOptions.map(option => (
                       <Dropdown.Item
+                        className="query-dropdown"
                         onClick={() =>
                           addToNewQuery(
                             i,
@@ -144,16 +145,22 @@ const Panel: React.FC = () => {
                 />
               ) : null}
               {queries.length > 1 && i < queries.length - 1 ? (
-                <Button variant="warning" onClick={() => onDeleteQuery(i)}>
-                  Remove Query
-                </Button>
+                <div>
+                  <Button
+                    variant="warning"
+                    onClick={() => onDeleteQuery(i)}
+                    className="query-button"
+                  >
+                    Remove Query
+                  </Button>
+                </div>
               ) : null}
             </div>
           );
         })}
         <div>
           <Button
-            className="add-new-query"
+            className="add-new-query query-button"
             variant="success"
             onClick={() => onAddQuery()}
           >
