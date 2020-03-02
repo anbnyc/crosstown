@@ -23,6 +23,14 @@
 
   .header {
     height: 15%;
+
+    .ed-count {
+      font-size: 18px;
+      float: right;
+      @media (max-width: $max-width-mobile) {
+        margin-right: 30px;
+      }
+    }
   }
 
   .body {
@@ -31,34 +39,12 @@
     overflow-y: scroll;
     // background-color: #ddd;
     box-shadow: inset 1px 1px 2px 1px #888888;
+  }
 
-    .query {
-      padding-bottom: 10px;
-      border-bottom: 1px solid #ddd;
-      margin-bottom: 10px;
-      &-line {
-        margin: 2px 0px;
-        &-header {
-          display: inline-block;
-          width: 70px;
-          font-size: 12px;
-          padding-right: 10px;
-          text-align: right;
-
-          @media (max-width: $max-width-mobile) {
-            font-size: 10px;
-            width: 50px;
-          }
-        }
-      }
-
-      @media (max-width: $max-width-mobile) {
-        &-dropdown,
-        &-button {
-          font-size: 10px;
-        }
-      }
-    }
+  .query-container {
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eeeeee;
+    margin-bottom: 10px;
   }
 
   .footer {

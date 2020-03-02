@@ -27,7 +27,7 @@ const Map = () => {
     //@ts-ignore
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: "mapbox://styles/mapbox/streets-v11",
+      style: "mapbox://styles/mapbox/light-v10",
       center: [
         isMobile ? mapSettings.lngMobile : mapSettings.lngDesktop,
         mapSettings.lat,
@@ -87,11 +87,8 @@ const Map = () => {
         new mapboxgl.Popup()
           .setLngLat(coordinates)
           .setHTML(
-            `<div style="padding-top:5px;">
-              AD: <strong>${elect_dist.slice(0, 2)}</strong>
-            </div>
-            <div>
-              ED: <strong>${+elect_dist.slice(2)}</strong>
+            `<div style="padding-top:5px;text-align:right;">
+              <strong>${elect_dist}</strong>
             </div>`
           )
           .addTo(map);

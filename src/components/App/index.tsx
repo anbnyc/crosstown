@@ -31,6 +31,7 @@ const App: React.FC = () => {
         {isMobile ? (
           <img
             src={MenuIcon}
+            alt="hamburger-menu"
             onClick={() => {
               dispatch(togglePanelOpen());
             }}

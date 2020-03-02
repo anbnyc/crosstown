@@ -1,31 +1,29 @@
 import React from "react";
 import "./styles.scss";
 import { useSelector, useDispatch } from "react-redux";
+import { format } from "d3";
 import Button from "react-bootstrap/Button";
-import Dropdown from "react-bootstrap/Dropdown";
 import { State, raceKeys } from "../../interfaces";
-import { queryOrder } from "../../constants";
 import {
   asyncCallEndpoint,
   setQueryProp,
   clearQueryProp,
   setQueryMinMax,
-  addQuery,
   removeQuery,
+  addQuery,
 } from "../../actions";
-import {
-  displayBlankAsNA,
-  truthyOrZero,
-  nextDropdownOptionsFromRace,
-} from "../../utils";
+import { truthyOrZero } from "../../utils";
+import { queryOrder } from "../../constants";
 
-import Histogram from "../Histogram";
+import Query from "../Query";
+
+const fmt = format(",.0f");
 
 const Panel: React.FC = () => {
   const dispatch = useDispatch();
 
   const queries = useSelector((state: State) => state.data.queries);
-  const menu = useSelector((state: State) => state.data.menu);
+  const nMatches = useSelector((state: State) => state.data.matches.length);
   const isPanelOpen = useSelector((state: State) => state.ui.isPanelOpen);
 
   const addToNewQuery = (index: number, nextKey: string, nextValue: string) => {
@@ -45,10 +43,6 @@ const Panel: React.FC = () => {
 
   const removeFromNewQuery = (index: number, nextKey: raceKeys) => {
     dispatch(clearQueryProp(index, nextKey));
-  };
-
-  const onAddQuery = () => {
-    dispatch(addQuery());
   };
 
   const onDeleteQuery = (index: number) => {
@@ -86,78 +80,42 @@ const Panel: React.FC = () => {
     }
   };
 
+  const onAddQuery = () => {
+    dispatch(addQuery());
+  };
+
   return (
     <div className={"Panel " + (isPanelOpen ? "open" : "")}>
       <div className="header">
-        <h2>Crosstown</h2>
+        <h2>
+          Crosstown
+          <span className="ed-count">{fmt(nMatches)} EDs</span>
+        </h2>
         <p>Build visual queries of NYC election results.</p>
       </div>
       <div className="body">
-        {queries.map((d, i) => {
-          const queryDropdownOptions = nextDropdownOptionsFromRace(menu, d);
-          return (
-            <div className="query" key={`query-${i}`}>
-              {d.race.map(({ key, value }, j) => (
-                <div key={key} className="query-line">
-                  <div className="query-line-header">{queryOrder[j].label}</div>
-                  <Button
-                    className="query-button"
-                    onClick={() => removeFromNewQuery(i, key)}
-                    variant="secondary"
-                  >
-                    {displayBlankAsNA(value)}
-                  </Button>
-                </div>
-              ))}
-              {queryDropdownOptions.length ? (
-                <Dropdown>
-                  <Dropdown.Toggle
-                    variant="primary"
-                    id="dropdown-basic"
-                    className="query-dropdown"
-                  >
-                    {queryOrder[d.race.length].label}
-                  </Dropdown.Toggle>
-
-                  <Dropdown.Menu>
-                    {queryDropdownOptions.map(option => (
-                      <Dropdown.Item
-                        className="query-dropdown"
-                        onClick={() =>
-                          addToNewQuery(
-                            i,
-                            queryOrder[d.race.length].key,
-                            option
-                          )
-                        }
-                        key={option}
-                      >
-                        {displayBlankAsNA(option)}
-                      </Dropdown.Item>
-                    ))}
-                  </Dropdown.Menu>
-                </Dropdown>
-              ) : null}
-              {d.data ? (
-                <Histogram
-                  data={d.data}
-                  onBrushEnd={mm => applyMinMax(i, mm)}
-                />
-              ) : null}
-              {queries.length > 1 && i < queries.length - 1 ? (
-                <div>
-                  <Button
-                    variant="warning"
-                    onClick={() => onDeleteQuery(i)}
-                    className="query-button"
-                  >
-                    Remove Query
-                  </Button>
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
+        {queries.map((d, i) => (
+          <div key={`query-${i}`} className="query-container">
+            <Query
+              d={d}
+              i={i}
+              addCallback={addToNewQuery}
+              removeCallback={removeFromNewQuery}
+              minMaxCallback={applyMinMax}
+            />
+            {queries.length > 1 && i < queries.length - 1 ? (
+              <div>
+                <Button
+                  variant="warning"
+                  onClick={() => onDeleteQuery(i)}
+                  className="query-button"
+                >
+                  Remove Query
+                </Button>
+              </div>
+            ) : null}
+          </div>
+        ))}
         <div>
           <Button
             className="add-new-query query-button"

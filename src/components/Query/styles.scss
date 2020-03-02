@@ -1,0 +1,37 @@
+@import "../variables.scss";
+
+.query {
+  &-line {
+    margin: 2px 0px;
+    &-header {
+      display: inline-block;
+      width: 70px;
+      font-size: 12px;
+      padding-right: 10px;
+      text-align: right;
+
+      @media (max-width: $max-width-mobile) {
+        font-size: 10px;
+        width: 50px;
+      }
+    }
+  }
+
+  &-short-line {
+    display: inline-block;
+    font-size: 12px;
+    padding-right: 10px;
+  }
+
+  &-toggle-open {
+    float: right;
+    cursor: pointer;
+  }
+
+  @media (max-width: $max-width-mobile) {
+    &-dropdown,
+    &-button {
+      font-size: 10px;
+    }
+  }
+}

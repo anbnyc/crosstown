@@ -49,6 +49,14 @@ export interface Action {
   payload?: any;
 }
 
+export interface QueryProps {
+  d: EDQuery;
+  i: number;
+  addCallback: (i: number, k: raceKeys, option: string) => void;
+  removeCallback: (i: number, k: raceKeys) => void;
+  minMaxCallback: (i: number, [m, n]: [number, number]) => void;
+}
+
 export enum ActionTypes {
   TOGGLE_PANEL = "TOGGLE_PANEL",
 }
