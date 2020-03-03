@@ -34,7 +34,10 @@ Sum and percent of votes for candidates
 - `select distinct office, count(*) from results where office like '%Governor%' group by office;`
 - `select * from (select ad, ed, event, office, district_key, unit_name, count(*) from results group by ad, ed, event, office, district_key, unit_name) as foo where foo.count > 1;`: Dupe checking, should return 0 rows
 
-** TODO ** create QA function to return any mismatches in count between tables
+#### comparing datasets and results
+
+Mismatch checking, should return 0 rows
+`select * from ( select distinct right(event, 10) as revent, office, district_key, count(*) from results group by revent, office, district_key order by revent, office, district_key ) as a full outer join ( select to_char(date,'MM/dd/yyyy') as fdate, office, district_key, rows from datasets order by fdate, office, district_key ) as b on a.revent = b.fdate and a.office = b.office and a.district_key = b.district_key where a.count != b.rows;`
 
 #### special cases
 
@@ -42,3 +45,4 @@ In the following cases due to character limits in the DB table structure, the fo
 
 - 2017-11-07 office `Authorizing the Use of Forest Preserve Land for Specified Purposes` => `Forest Preserve Land` (ballot initiative)
 - 2016-04-19 event `Special Election 59 62 and 65 Assembly - 04/19/2016` => `Special Election 59 62 65 Assembly - 04/19/2016` (special election)
+- 2014-11-04 office `Permitting Electronic Distribution of State Legislative Bills` => `Electronic State Bills` (ballot initiative)
