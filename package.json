@@ -2,6 +2,9 @@
   "name": "crosstown",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "13.x"
+  },
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
@@ -17,6 +20,7 @@
     "bootstrap": "^4.4.1",
     "d3": "^5.15.0",
     "d3-array": "2",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "mapbox-gl": "^1.7.0",
     "node-sass": "^4.13.0",
@@ -39,7 +43,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "node server/index.ts"
+    "server": "node server.ts"
   },
   "eslintConfig": {
     "extends": "react-app"

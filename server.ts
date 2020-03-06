@@ -2,10 +2,15 @@ var express = require("express");
 var path = require("path");
 var cors = require("cors");
 var fs = require("fs");
+require("dotenv").config();
 
 const { Pool, Client } = require("pg");
 
 const client = new Pool({
+  // host: process.env.HEROKU_PQSL_HOST,
+  // database: process.env.HEROKU_PSQL_DB,
+  // user: process.env.HEROKU_PQSL_USER,
+  // password: process.env.HEROKU_PSQL_PWORD,
   host: "localhost",
   database: "crosstown",
   port: 5432,
@@ -22,6 +27,11 @@ app.use(
 app.set("port", PORT);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "build")));
+
+app.get("/", (req, res) => {
+  console.log(__dirname);
+  res.sendFile(path.join(__dirname, "build", "index.html"));
+});
 
 const whereConcatenator = ([k, v]) => {
   if (v === "null") {
