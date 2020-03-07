@@ -17,7 +17,7 @@ const client = new Pool({
 });
 
 var app = express();
-var PORT = 4000;
+var PORT = process.env.PORT || 4000;
 
 app.use(
   cors({
