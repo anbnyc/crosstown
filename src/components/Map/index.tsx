@@ -9,8 +9,6 @@ import mn from "./mn.json";
 import mnad from "./mnad.json";
 import { asyncCallEndpoint } from "../../actions";
 
-mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN as string;
-
 // https://docs.mapbox.com/help/tutorials/use-mapbox-gl-js-with-react/
 // https://docs.mapbox.com/mapbox-gl-js/example/using-box-queryrenderedfeatures/
 const Map = () => {
@@ -24,6 +22,7 @@ const Map = () => {
   const mapRef = useRef(null);
 
   useEffect(() => {
+    mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN as string;
     //@ts-ignore
     const map = new mapboxgl.Map({
       container: mapContainer.current,

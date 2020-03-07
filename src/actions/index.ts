@@ -24,7 +24,7 @@ const dataTypeLookup: { [key: string]: string } = {
   filter: SET_ADED_DATA,
 };
 
-const API_PATH = "http://localhost:4000/api";
+const API_PATH = "/api";
 
 const makeActionCreator = (type: string, ...argNames: string[]) => {
   return function(...args: any[]) {
