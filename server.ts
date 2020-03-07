@@ -7,7 +7,7 @@ require("dotenv").config();
 const { Pool, Client } = require("pg");
 
 const client = new Pool({
-  host: process.env.HEROKU_PQSL_HOST,
+  host: process.env.HEROKU_PSQL_HOST,
   database: process.env.HEROKU_PSQL_DB,
   user: process.env.HEROKU_PQSL_USER,
   password: process.env.HEROKU_PSQL_PWORD,
