@@ -18,7 +18,7 @@ const {
   SET_IS_MOBILE,
 } = Constants;
 
-const initMobile = window.innerWidth < 768;
+const initMobile = window.innerWidth <= 768;
 
 const InitialState: State = {
   ui: {

@@ -3,7 +3,6 @@ import "./styles.scss";
 import { useSelector } from "react-redux";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
-import { format } from "d3";
 import { queryOrder } from "../../constants";
 import Histogram from "../Histogram";
 import { QueryProps, State } from "../../interfaces";
@@ -11,12 +10,11 @@ import ExpandMore from "../../assets/expand_more-24px.svg";
 import ExpandLess from "../../assets/expand_less-24px.svg";
 
 import {
-  displayBlankAsNA,
+  displayFn,
   truthyOrZero,
   nextDropdownOptionsFromRace,
+  fmt,
 } from "../../utils";
-
-const fmt = format(".2p");
 
 const Query = ({
   d,
@@ -38,7 +36,8 @@ const Query = ({
 
   return (
     <div className="query" key={`query-${i}`}>
-      {d.complete && truthyOrZero(d.min) && truthyOrZero(d.max) ? (
+      <div className="query-tag">{i + 1}</div>
+      {d.complete ? (
         <img
           className="query-toggle-open"
           alt="toggle-arrow"
@@ -55,7 +54,7 @@ const Query = ({
               onClick={() => removeCallback(i, key)}
               variant="secondary"
             >
-              {displayBlankAsNA(value)}
+              {displayFn(key, value)}
             </Button>
           </div>
         ) : (
@@ -83,7 +82,7 @@ const Query = ({
                 }
                 key={option}
               >
-                {displayBlankAsNA(option)}
+                {displayFn(queryOrder[d.race.length].key, option)}
               </Dropdown.Item>
             ))}
           </Dropdown.Menu>
@@ -96,7 +95,9 @@ const Query = ({
             {truthyOrZero(d.min) && truthyOrZero(d.max) ? (
               <div>{`${fmt(d.min || 0).slice(0, -1)}-${fmt(d.max || 0)}`}</div>
             ) : (
-              ""
+              <div>
+                <strong>Click/drag</strong>
+              </div>
             )}
           </div>
           <Histogram data={d.data} onBrushEnd={mm => minMaxCallback(i, mm)} />

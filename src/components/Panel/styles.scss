@@ -3,13 +3,14 @@
 .Panel {
   position: absolute;
   z-index: 1;
-  margin: 2.5%;
+  margin: 25px 2.5% 25px 2.5%;
   padding: 10px;
   height: 90%;
   width: 45%;
   transition: right 0.5s;
 
   @media (max-width: $max-width-mobile) {
+    margin: 10px 2.5% 10px 2.5%;
     width: 95%;
     right: 0%;
     &.open {

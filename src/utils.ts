@@ -1,6 +1,12 @@
+import { format } from "d3";
 import { EDQuery, DataMenu } from "./interfaces";
 
+export const displayFn = (k: string, d: any) =>
+  k === "event" ? d.replace("Election ", "") : displayBlankAsNA(d);
 export const displayBlankAsNA = (d: any) => d || "N/A";
+
+export const zeroPad = (ad: number, ed: number) =>
+  `${ad}${ed > 99 ? "" : ed > 9 ? "0" : "00"}${ed}`;
 
 export const truthyOrZero = (d: any) => !!d || d === 0;
 
@@ -24,3 +30,5 @@ export const nextDropdownOptionsFromRace: (
   }
   return [];
 };
+
+export const fmt = format(".2p");

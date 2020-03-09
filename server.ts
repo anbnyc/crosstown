@@ -4,15 +4,16 @@ var cors = require("cors");
 var fs = require("fs");
 require("dotenv").config();
 
+const DEV_MODE = process.argv[2] === "dev";
+console.log(DEV_MODE ? "dev mode" : "production mode");
+
 const { Pool, Client } = require("pg");
 
 const client = new Pool({
-  host: process.env.HEROKU_PSQL_HOST,
-  database: process.env.HEROKU_PSQL_DB,
-  user: process.env.HEROKU_PSQL_USER,
-  password: process.env.HEROKU_PSQL_PWORD,
-  // host: "localhost",
-  // database: "crosstown",
+  host: DEV_MODE ? "localhost" : process.env.HEROKU_PSQL_HOST,
+  database: DEV_MODE ? "crosstown" : process.env.HEROKU_PSQL_DB,
+  user: DEV_MODE ? "" : process.env.HEROKU_PSQL_USER,
+  password: DEV_MODE ? "" : process.env.HEROKU_PSQL_PWORD,
   port: 5432,
 });
 
@@ -28,10 +29,11 @@ app.set("port", PORT);
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "build")));
 
-app.get("/", (req, res) => {
-  console.log(__dirname);
-  res.sendFile(path.join(__dirname, "build", "index.html"));
-});
+// if (!DEV_MODE) {
+//   app.get("/", (req, res) => {
+//     res.sendFile(path.join(__dirname, "build", "index.html"));
+//   });
+// }
 
 const whereConcatenator = ([k, v]) => {
   if (v === "null") {

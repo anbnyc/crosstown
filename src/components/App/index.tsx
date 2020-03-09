@@ -15,15 +15,15 @@ const App: React.FC = () => {
 
   useEffect(() => {
     dispatch(asyncCallEndpoint("menu", []));
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     const onResize = () => {
-      dispatch(setIsMobile(window.innerWidth < 768));
+      dispatch(setIsMobile(window.innerWidth <= 768));
     };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="App">

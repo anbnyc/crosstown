@@ -4,4 +4,34 @@
   right: 0;
   left: 0;
   bottom: 0;
+
+  .mapboxgl-popup-content span {
+    position: relative;
+    display: inline-block;
+  }
+  .popup-row {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    height: 14px;
+  }
+  .query-tag {
+    height: 12px;
+    width: 12px;
+    border: 1px solid black;
+    border-radius: 50%;
+    font-size: 8px;
+    line-height: 10px;
+    text-align: center;
+    font-weight: bold;
+    position: absolute;
+    top: -1px;
+    left: 5px;
+  }
+  .query-value {
+    font-size: 12px;
+    line-height: 10px;
+    text-align: right;
+    width: 100%;
+  }
 }

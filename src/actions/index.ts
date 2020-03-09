@@ -24,7 +24,7 @@ const dataTypeLookup: { [key: string]: string } = {
   filter: SET_ADED_DATA,
 };
 
-const API_PATH = "/api";
+const API_URL = process.env.REACT_APP_API_URL || "/api";
 
 const makeActionCreator = (type: string, ...argNames: string[]) => {
   return function(...args: any[]) {
@@ -41,7 +41,7 @@ export const asyncCallEndpoint = (
   query: any[]
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch: any) => {
   fetch(
-    `${API_PATH}/${endpoint}?${query
+    `${API_URL}/${endpoint}?${query
       .map(([k, v]: [string, string, string]) => `${k}=${v}`)
       .join("&")}`
   )

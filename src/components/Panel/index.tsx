@@ -43,6 +43,13 @@ const Panel: React.FC = () => {
 
   const removeFromNewQuery = (index: number, nextKey: raceKeys) => {
     dispatch(clearQueryProp(index, nextKey));
+    const nextQueries = [
+      ...queries.slice(0, index),
+      ...queries.slice(index + 1),
+    ].filter(d => d.complete && truthyOrZero(d.min) && truthyOrZero(d.max));
+    if (nextQueries.length === 0) {
+      dispatch(asyncCallEndpoint("aded", []));
+    }
   };
 
   const onDeleteQuery = (index: number) => {
@@ -91,7 +98,7 @@ const Panel: React.FC = () => {
           Crosstown
           <span className="ed-count">{fmt(nMatches)} EDs</span>
         </h2>
-        <p>Build visual queries of NYC election results.</p>
+        <p>Build visual queries of NYC election results</p>
       </div>
       <div className="body">
         {queries.map((d, i) => (
