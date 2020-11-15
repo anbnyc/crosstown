@@ -5,11 +5,10 @@ import {
   extent,
   select,
   scaleLinear,
-  histogram,
+  bin,
   axisBottom,
   axisLeft,
   brushX,
-  event,
   format,
 } from "d3";
 import { Constants, Layout } from "../../constants";
@@ -34,7 +33,7 @@ const Histogram = ({ data, onBrushEnd }: HistogramProps) => {
       .domain(extent(data, d => d[TALLY_PCT]))
       .range([Layout.M, Layout.W - Layout.M]);
 
-    const bins = histogram()
+    const bins = bin()
       //@ts-ignore
       .domain(x.domain())
       .thresholds(x.ticks(40))(data.map(d => d[TALLY_PCT]));
@@ -45,8 +44,10 @@ const Histogram = ({ data, onBrushEnd }: HistogramProps) => {
       .nice()
       .range([Layout.H - Layout.M, Layout.M]);
 
-    const brushed = () => {
-      onBrushEnd((event.selection || []).map(x.invert));
+    // @ts-ignore
+    const brushed = ({ selection }) => {
+      onBrushEnd((selection || []).map((d: number) =>
+        Math.round(100*x.invert(d))/100));
     };
 
     select(xAxis.current).call(

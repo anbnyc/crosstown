@@ -1,9 +1,10 @@
-import React from "react";
+import React, {useEffect} from "react";
 import "./styles.scss";
 import { useSelector, useDispatch } from "react-redux";
 import { format } from "d3";
+
 import Button from "react-bootstrap/Button";
-import { State, raceKeys } from "../../interfaces";
+import { State, RaceKeys } from "../../types";
 import {
   asyncCallEndpoint,
   setQueryProp,
@@ -11,6 +12,7 @@ import {
   setQueryMinMax,
   removeQuery,
   addQuery,
+  resetAdeds,
 } from "../../actions";
 import { truthyOrZero } from "../../utils";
 import { queryOrder } from "../../constants";
@@ -26,14 +28,40 @@ const Panel: React.FC = () => {
   const nMatches = useSelector((state: State) => state.data.matches.length);
   const isPanelOpen = useSelector((state: State) => state.ui.isPanelOpen);
 
-  const addToNewQuery = (index: number, nextKey: string, nextValue: string) => {
+  // sync data and URL params with changed queries
+  useEffect(() => {
+    const nextQueries = queries
+      .filter(d => d.complete && truthyOrZero(d.min) && truthyOrZero(d.max))
+
+    const nextQueriesFilter = nextQueries
+      .map(d => [
+        ...d.race
+          .filter(e => e.key !== RaceKeys.year) // synthetic variable for organizing dropdown menu
+          .map(({ key, value }) => [key, value]),
+        ["tally_pct-min", d.min],
+        ["tally_pct-max", d.max],
+      ])
+      .flat();
+
+    // dispatch a new request for matching AD/EDs, or clear filters
+    if (nextQueries.length === 0) {
+      dispatch(resetAdeds());
+    } else {
+      dispatch(asyncCallEndpoint("filter", nextQueriesFilter));
+    }
+
+    // TODO call "pct" for all queries without data
+
+  }, [queries, dispatch])
+
+  const addToNewQuery = (index: number, nextKey: RaceKeys, nextValue: string) => {
     dispatch(setQueryProp(index, nextKey, nextValue));
     // this prop will complete this query's raceQuery
     if (queries[index].race.length + 1 === queryOrder.length) {
       dispatch(
         asyncCallEndpoint("pct", [
           ...queries[index].race
-            .filter(e => e.key !== "year") // synthetic variable for organizing dropdown menu
+            .filter(e => e.key !== RaceKeys.year) // synthetic variable for organizing dropdown menu
             .map(({ key, value }) => [key, value]),
           [nextKey, nextValue],
         ])
@@ -41,14 +69,14 @@ const Panel: React.FC = () => {
     }
   };
 
-  const removeFromNewQuery = (index: number, nextKey: raceKeys) => {
+  const removeFromNewQuery = (index: number, nextKey: RaceKeys) => {
     dispatch(clearQueryProp(index, nextKey));
     const nextQueries = [
       ...queries.slice(0, index),
       ...queries.slice(index + 1),
     ].filter(d => d.complete && truthyOrZero(d.min) && truthyOrZero(d.max));
     if (nextQueries.length === 0) {
-      dispatch(asyncCallEndpoint("aded", []));
+      dispatch(resetAdeds());
     }
   };
 
@@ -57,34 +85,8 @@ const Panel: React.FC = () => {
   };
 
   const applyMinMax = (index: number, minMax: [number, number]) => {
+    // update this query in Store
     dispatch(setQueryMinMax(index, ...minMax));
-
-    // in addition to updating this query in Store,
-    // dispatch a new request for matching AD/EDs
-    const nextQueries = [
-      ...queries.slice(0, index),
-      {
-        ...queries[index],
-        min: minMax[0],
-        max: minMax[1],
-      },
-      ...queries.slice(index + 1),
-    ]
-      .filter(d => d.complete && truthyOrZero(d.min) && truthyOrZero(d.max))
-      .map(d => [
-        ...d.race
-          .filter(e => e.key !== "year") // synthetic variable for organizing dropdown menu
-          .map(({ key, value }) => [key, value]),
-        ["tally_pct-min", d.min],
-        ["tally_pct-max", d.max],
-      ])
-      .flat();
-
-    if (nextQueries.length === 0) {
-      dispatch(asyncCallEndpoint("aded", []));
-    } else {
-      dispatch(asyncCallEndpoint("filter", nextQueries));
-    }
   };
 
   const onAddQuery = () => {

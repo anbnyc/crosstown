@@ -2,8 +2,10 @@
 
 **Election Districts Map source**:
 https://data.cityofnewyork.us/City-Government/Election-Districts/h2n3-98hq
+
 **Assembly Districts Map source**:
 https://data.cityofnewyork.us/City-Government/State-Assembly-Districts/pf5b-73bw
+
 **Election Results data source**:
 https://vote.nyc/page/election-results-summary
 

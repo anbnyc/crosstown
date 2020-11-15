@@ -1,6 +1,6 @@
 import { ThunkAction } from "redux-thunk";
 import { AnyAction } from "redux";
-import { ActionTypes, Action } from "../interfaces";
+import { ActionTypes, Action } from "../types";
 import { Constants } from "../constants";
 
 const {
@@ -15,6 +15,8 @@ const {
   SET_QUERY_MIN_MAX,
   TOGGLE_PANEL_OPEN,
   SET_IS_MOBILE,
+  SET_QUERIES_FROM_URL,
+  RESET_ADEDS
 } = Constants;
 
 const dataTypeLookup: { [key: string]: string } = {
@@ -38,13 +40,13 @@ const makeActionCreator = (type: string, ...argNames: string[]) => {
 
 export const asyncCallEndpoint = (
   endpoint: string,
-  query: any[]
+  query: any[] = []
 ): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch: any) => {
-  fetch(
-    `${API_URL}/${endpoint}?${query
-      .map(([k, v]: [string, string, string]) => `${k}=${v}`)
-      .join("&")}`
-  )
+  const queryString = query
+    .map(([k, v]: [string, string, string]) => `${k}=${v}`)
+    .join("&")
+
+  fetch(`${API_URL}/${endpoint}?${queryString}`)
     .catch(e => console.log("error in asyncCallEndpoint:", e))
     .then(response => (response as Response).json())
     .then(data => {
@@ -78,6 +80,8 @@ export const setQueryMinMax = makeActionCreator(
   "min",
   "max"
 );
+export const setQueriesFromUrl = makeActionCreator(SET_QUERIES_FROM_URL, "queries")
+export const resetAdeds = makeActionCreator(RESET_ADEDS);
 
 export const togglePanelOpen = makeActionCreator(TOGGLE_PANEL_OPEN);
 export const setIsMobile = makeActionCreator(SET_IS_MOBILE, "isMobile");

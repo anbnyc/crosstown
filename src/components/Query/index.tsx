@@ -5,7 +5,7 @@ import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
 import { queryOrder } from "../../constants";
 import Histogram from "../Histogram";
-import { QueryProps, State } from "../../interfaces";
+import { QueryProps, State } from "../../types";
 import ExpandMore from "../../assets/expand_more-24px.svg";
 import ExpandLess from "../../assets/expand_less-24px.svg";
 

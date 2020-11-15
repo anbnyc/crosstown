@@ -48,21 +48,30 @@ const whereConcatenator = ([k, v]) => {
   return `${k} in (${v.split(",").map(d => `'${d.replace("'", "''")}'`)})`;
 };
 
-const tableHandler = table => (req, res) => {
+const tableHandler = (table, rowMode) => (req, res) => {
   console.log("Request received: ", table);
   const { query } = req;
   const WHERE = Object.entries(query)
     .map(whereConcatenator)
     .join(" and ");
 
-  const q = `SELECT * FROM ${table} ${WHERE.length ? "WHERE " + WHERE : ""};`;
+  const q = {
+    text: `SELECT * FROM ${table} ${WHERE.length ? "WHERE " + WHERE : ""};`
+  }
+  if(rowMode){
+    q.rowMode = rowMode
+  }
   console.log("Making query: ", q);
 
   client
     .query(q)
     .catch(e => console.error(e.stack))
     .then(data => {
-      res.send(JSON.stringify(data.rows));
+      if (rowMode === 'array') {
+        res.send(JSON.stringify(data.rows.flat()));
+      } else {
+        res.send(JSON.stringify(data.rows));
+      }
       console.log("Request responded: ", table, data.rows.length, " rows");
     });
 };
@@ -71,7 +80,7 @@ app.get("/api/results", tableHandler("results"));
 app.get("/api/datasets", tableHandler("datasets"));
 app.get("/api/pct", tableHandler("results_candidate_pct"));
 app.get("/api/menu", tableHandler("results_menu_options"));
-app.get("/api/aded", tableHandler("results_aded_list"));
+app.get("/api/aded", tableHandler("results_aded_list", "array"));
 
 /**
  * This endpoint takes a special callback
@@ -108,7 +117,9 @@ app.get("/api/filter", (req, res) => {
     `);
 
   // see MATERIALIZED VIEW results_aded_list
-  const q = `SELECT DISTINCT
+  const q = {
+    rowMode: 'array',
+    text: `SELECT DISTINCT
     CONCAT(
       ad,
       RIGHT(
@@ -118,13 +129,14 @@ app.get("/api/filter", (req, res) => {
         ), 3
       )
     ) as aded
-  FROM (${PREDICATE}) as foo;`;
+    FROM (${PREDICATE}) as foo;`,
+  }
 
   client
     .query(q)
     .catch(e => console.error(e.stack))
     .then(data => {
-      res.send(JSON.stringify(data.rows));
+      res.send(JSON.stringify(data.rows.flat()));
       console.log(
         "Request responded: [filtered results_candidate_pct]",
         data.rows.length,

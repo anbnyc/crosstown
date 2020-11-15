@@ -1,7 +1,10 @@
+CREATE DATABASE crosstown;
+
 CREATE TABLE datasets
 (
 	bod_id character varying(11),
 	date date,
+	event_name character varying(50),
 	office character varying(50),
 	district_key character varying(4),
 	rows int8 NOT NULL
@@ -9,18 +12,18 @@ CREATE TABLE datasets
 
 CREATE TABLE results
 (
-	bod_id character varying(11),
 	ad int4 NOT NULL,
 	ed int4 NOT NULL,
 	county character varying(20),
 	edad_status character varying(50),
-	event character varying(50),
+	event character varying(75),
 	party character varying(20),
 	office character varying(50),
 	district_key character varying(4),
 	vote_for int4,
-	unit_name character varying(60),
-	tally int4
+	unit_name character varying(75),
+	tally int4,
+	bod_id character varying(11)
 );
 
 CREATE MATERIALIZED VIEW results_candidate_pct AS
@@ -61,29 +64,29 @@ ON
 WHERE candidate_level.unit_name not in ('Public Counter', 'Manually Counted Emergency', 'Absentee / Military', 'Affidavit', 'Federal');
 
 CREATE MATERIALIZED VIEW results_menu_options AS
-	SELECT DISTINCT
-		event,
-		office,
-		district_key,
-		party,
-		unit_name
-	FROM results
-	WHERE unit_name not in ('Public Counter', 'Manually Counted Emergency', 'Absentee / Military', 'Affidavit', 'Federal')
-	ORDER BY event, office, district_key, party;
+SELECT DISTINCT
+	event,
+	office,
+	district_key,
+	party,
+	unit_name
+FROM results
+WHERE unit_name not in ('Public Counter', 'Manually Counted Emergency', 'Absentee / Military', 'Affidavit', 'Federal')
+ORDER BY event, office, district_key, party;
 
 CREATE MATERIALIZED VIEW results_aded_list AS
-	SELECT DISTINCT
-		CONCAT(
-			ad,
-			RIGHT(
-				CONCAT(
-					'000',
-					ed
-				), 3
-			)
-		) as aded
-	FROM results_candidate_pct
-	ORDER BY aded;
+SELECT DISTINCT
+	CONCAT(
+		ad,
+		RIGHT(
+			CONCAT(
+				'000',
+				ed
+			), 3
+		)
+	) as aded
+FROM results_candidate_pct
+ORDER BY aded;
 
 REFRESH MATERIALIZED VIEW results_candidate_pct;
 REFRESH MATERIALIZED VIEW results_menu_options;

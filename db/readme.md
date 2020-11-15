@@ -3,6 +3,11 @@
 - `psycopg2` for connecting Python to
 - postgresql (db name = `crosstown`)
 
+### data processing
+- `./psql_tables.sql` contains queries to create database tables
+- `./clean_csv.ipynb` contains functions to import CSVs, clean, and upload to DB
+- CSVs should be saved at `db/data/raw/[YYYY]/[BOD_ID].csv`
+
 ### query functions
 
 #### results tables

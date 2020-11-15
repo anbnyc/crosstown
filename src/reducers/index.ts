@@ -1,5 +1,6 @@
 import { combineReducers } from "redux";
-import { State, Action } from "../interfaces";
+import type { State, Action, EDQuery } from "../types";
+import {RaceKeys} from '../types'
 import { Constants, queryOrder } from "../constants";
 import { rollup } from "d3-array";
 import { nextDropdownOptionsFromRace } from "../utils";
@@ -9,6 +10,7 @@ const {
   SET_MENU_DATA,
   ADD_PCT_DATA,
   SET_ADED_DATA,
+  RESET_ADEDS,
   ADD_QUERY,
   REMOVE_QUERY,
   SET_QUERY_PROP,
@@ -16,6 +18,7 @@ const {
   SET_QUERY_MIN_MAX,
   TOGGLE_PANEL_OPEN,
   SET_IS_MOBILE,
+  SET_QUERIES_FROM_URL,
 } = Constants;
 
 const initMobile = window.innerWidth <= 768;
@@ -40,6 +43,7 @@ const InitialState: State = {
       },
     ],
     menu: new Map([]),
+    allAdEds: []
   },
 };
 
@@ -75,9 +79,9 @@ function dataReducer(state = InitialState.data, a: Action) {
             a.payload.data,
             (values: any) => values.map((v: any) => v.unit_name),
             (d: any) => d.event.slice(-4), // year = synthetic variable for organizing the menu
-            //@ts-ignore
             (d: any) => d.event,
             (d: any) => d.office,
+            //@ts-ignore
             (d: any) => d.district_key,
             (d: any) => d.party
           );
@@ -91,7 +95,7 @@ function dataReducer(state = InitialState.data, a: Action) {
           const nextQueryIndex = state.queries.findIndex(d =>
             d.race.length
               ? d.race
-                  .filter(e => e.key !== "year")
+                  .filter(e => e.key !== RaceKeys.year)
                   .reduce(
                     (t, { key, value }) => t && apiQueryObj[key] === value,
                     true
@@ -119,14 +123,24 @@ function dataReducer(state = InitialState.data, a: Action) {
           };
         }
         case SET_ADED_DATA: {
+          const { query, data } = a.payload
           return {
             ...state,
-            matches: a.payload.data.map((d: any) => d.aded),
+            matches: data,
+            ...(query.length === 0 && {
+              allAdEds: data
+            })
           };
         }
         default: {
           return state;
         }
+      }
+    }
+    case RESET_ADEDS: {
+      return {
+        ...state,
+        matches: state.allAdEds || []
       }
     }
     case ADD_QUERY: {
@@ -220,6 +234,16 @@ function dataReducer(state = InitialState.data, a: Action) {
           ...state.queries.slice(index + 1),
         ],
       };
+    }
+    case SET_QUERIES_FROM_URL: {
+      const { queries } = a.payload;
+      return {
+        ...state,
+        queries: queries.map((q: EDQuery) => ({
+          ...q,
+          complete: q.race.length === queryOrder.length,
+        }))
+      }
     }
     default: {
       return state;
