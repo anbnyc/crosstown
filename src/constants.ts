@@ -23,6 +23,8 @@ export const Constants = {
   TALLY: "tally",
 };
 
+export const ANY = "(Any)"
+
 export const queryOrder: {
   label: string;
   key: RaceKeys;

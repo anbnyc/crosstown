@@ -26,9 +26,9 @@ export enum RaceKeys {
   year = "year",
   event = "event",
   office = "office",
-  unit_name = "unit_name",
+  district_key = "district_key",
   party = "party",
-  district_key = "district_key"
+  unit_name = "unit_name"
 }
 
 export interface RaceQuery {
@@ -48,7 +48,7 @@ export interface URLParams {
   [key: string]: any[];
 }
 
-export type DataMenu = Map<string, Map<string, any> | RaceQuery[]>;
+export type DataMenu = Map<string, string[] | DataMenu>;
 
 export interface Action {
   type: string;
@@ -56,8 +56,8 @@ export interface Action {
 }
 
 export interface QueryProps {
-  d: EDQuery;
-  i: number;
+  query: EDQuery;
+  queryId: number;
   addCallback: (i: number, k: RaceKeys, option: string) => void;
   removeCallback: (i: number, k: RaceKeys) => void;
   minMaxCallback: (i: number, [m, n]: [number, number]) => void;
@@ -68,7 +68,7 @@ export enum ActionTypes {
 }
 
 export interface TooltipObject {
-  tally_sum: number;
+  sum_tally: number;
   tally_pct: number;
   tally: number;
 }

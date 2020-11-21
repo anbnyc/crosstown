@@ -16,16 +16,18 @@ const getTooltipHtml = (ed: string, adedData: TooltipObject[]): string =>
     ED: <strong>${ed}</strong>
     ${adedData
       .map(
-        ({ tally, tally_pct, tally_sum }, i) =>
+        ({ tally, tally_pct, sum_tally }, i) =>
           `<div class='popup-row'>
             <div class='query-tag'>
-              ${i + 1}
+              ${i + 1}${' '}
             </div>
-            <div class='query-value'>
-              ${fmt(tally_pct)}
-            </div>
-            <div class='query-value'>
-              (${tally} / ${tally_sum})
+            <div class='popup-column'>
+              <div class='query-value query-value--bold'>
+                ${fmt(tally_pct)}${' '}
+              </div>
+              <div class='query-value'>
+                (${tally}/${sum_tally})
+              </div>
             </div>
           </div>`
       )
@@ -52,11 +54,11 @@ const MapComponent = () => {
           queries
             .filter(d => d.data && d.data.length)
             .reduce((t: { [key: string]: any[] }, v: EDQuery) => {
-              return v.data?.reduce((tt, { ad, ed, tally_pct, tally, tally_sum }) => {
+              return v.data?.reduce((tt, { ad, ed, tally_pct, tally, sum_tally }) => {
                 const prev = t[zeroPad(ad, ed)] || [];
                 return {
                   ...tt,
-                  [zeroPad(ad, ed)]: [...prev, { tally_pct, tally, tally_sum }],
+                  [zeroPad(ad, ed)]: [...prev, { tally_pct, tally, sum_tally }],
                 };
               }, t);
             }, {})

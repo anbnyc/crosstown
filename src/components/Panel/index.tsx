@@ -14,7 +14,7 @@ import {
   addQuery,
   resetAdeds,
 } from "../../actions";
-import { truthyOrZero } from "../../utils";
+import { filterReal, truthyOrZero } from "../../utils";
 import { queryOrder } from "../../constants";
 
 import Query from "../Query";
@@ -28,7 +28,7 @@ const Panel: React.FC = () => {
   const nMatches = useSelector((state: State) => state.data.matches.length);
   const isPanelOpen = useSelector((state: State) => state.ui.isPanelOpen);
 
-  // sync data and URL params with changed queries
+  // sync data with changed queries
   useEffect(() => {
     const nextQueries = queries
       .filter(d => d.complete && truthyOrZero(d.min) && truthyOrZero(d.max))
@@ -36,7 +36,7 @@ const Panel: React.FC = () => {
     const nextQueriesFilter = nextQueries
       .map(d => [
         ...d.race
-          .filter(e => e.key !== RaceKeys.year) // synthetic variable for organizing dropdown menu
+          .filter(filterReal)
           .map(({ key, value }) => [key, value]),
         ["tally_pct-min", d.min],
         ["tally_pct-max", d.max],
@@ -61,7 +61,7 @@ const Panel: React.FC = () => {
       dispatch(
         asyncCallEndpoint("pct", [
           ...queries[index].race
-            .filter(e => e.key !== RaceKeys.year) // synthetic variable for organizing dropdown menu
+            .filter(filterReal)
             .map(({ key, value }) => [key, value]),
           [nextKey, nextValue],
         ])
@@ -106,8 +106,8 @@ const Panel: React.FC = () => {
         {queries.map((d, i) => (
           <div key={`query-${i}`} className="query-container">
             <Query
-              d={d}
-              i={i}
+              query={d}
+              queryId={i}
               addCallback={addToNewQuery}
               removeCallback={removeFromNewQuery}
               minMaxCallback={applyMinMax}

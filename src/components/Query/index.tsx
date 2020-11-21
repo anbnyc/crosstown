@@ -17,27 +17,27 @@ import {
 } from "../../utils";
 
 const Query = ({
-  d,
-  i,
+  query: { data, complete, race, min, max },
+  queryId,
   removeCallback,
   addCallback,
   minMaxCallback,
 }: QueryProps) => {
   const [isOpen, setIsOpen] = useState(true);
   const menu = useSelector((state: State) => state.data.menu);
-  const queryDropdownOptions = nextDropdownOptionsFromRace(menu, d);
+  const queryDropdownOptions = nextDropdownOptionsFromRace(menu, race, complete);
 
   useEffect(() => {
     // always reopen if going into edit mode
-    if (isOpen && !d.data) {
+    if (!data) {
       setIsOpen(true);
     }
-  }, [d.data, isOpen]);
+  }, [data]);
 
   return (
-    <div className="query" key={`query-${i}`}>
-      <div className="query-tag">{i + 1}</div>
-      {d.complete ? (
+    <div className="Query" key={`query-${queryId}`}>
+      <div className="query-tag">{queryId + 1}</div>
+      {complete ? (
         <img
           className="query-toggle-open"
           alt="toggle-arrow"
@@ -45,13 +45,13 @@ const Query = ({
           onClick={() => setIsOpen(!isOpen)}
         />
       ) : null}
-      {d.race.map(({ key, value }, j) =>
+      {race.map(({ key, value }, j) =>
         isOpen ? (
           <div key={key} className="query-line">
             <div className="query-line-header">{queryOrder[j].label}</div>
             <Button
               className="query-button"
-              onClick={() => removeCallback(i, key)}
+              onClick={() => removeCallback(queryId, key)}
               variant="secondary"
             >
               {displayFn(key, value)}
@@ -70,7 +70,7 @@ const Query = ({
             id="dropdown-basic"
             className="query-dropdown"
           >
-            {queryOrder[d.race.length].label}
+            {queryOrder[race.length].label}
           </Dropdown.Toggle>
 
           <Dropdown.Menu>
@@ -78,29 +78,29 @@ const Query = ({
               <Dropdown.Item
                 className="query-dropdown"
                 onClick={() =>
-                  addCallback(i, queryOrder[d.race.length].key, option)
+                  addCallback(queryId, queryOrder[race.length].key, option)
                 }
                 key={option}
               >
-                {displayFn(queryOrder[d.race.length].key, option)}
+                {displayFn(queryOrder[race.length].key, option)}
               </Dropdown.Item>
             ))}
           </Dropdown.Menu>
         </Dropdown>
       ) : null}
-      {d.data ? (
+      {data ? (
         <div className="query-line">
           <div className="query-line-header">
             Range
-            {truthyOrZero(d.min) && truthyOrZero(d.max) ? (
-              <div>{`${fmt(d.min || 0).slice(0, -1)}-${fmt(d.max || 0)}`}</div>
+            {truthyOrZero(min) && truthyOrZero(max) ? (
+              <div>{`${fmt(min || 0).slice(0, -1)}-${fmt(max || 0)}`}</div>
             ) : (
               <div>
                 <strong>Click/drag</strong>
               </div>
             )}
           </div>
-          <Histogram data={d.data} onBrushEnd={mm => minMaxCallback(i, mm)} />
+          <Histogram data={data} onBrushEnd={mm => minMaxCallback(queryId, mm)} />
         </div>
       ) : null}
     </div>

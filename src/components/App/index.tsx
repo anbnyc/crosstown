@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Map from "../Map";
 import { useDispatch, useSelector } from "react-redux";
-import {ArrayParam, useQueryParams} from 'use-query-params'
+import {StringParam, useQueryParams} from 'use-query-params'
 
 import { asyncCallEndpoint, togglePanelOpen, setIsMobile, setQueriesFromUrl } from "../../actions";
 import "./styles.scss";
@@ -18,14 +18,14 @@ const App: React.FC = () => {
   const dispatch = useDispatch();
   const queries = useSelector((state: State) => state.data.queries);
   const [query, setQuery] = useQueryParams({
-    year: ArrayParam,
-    event: ArrayParam,
-    office: ArrayParam,
-    district_key: ArrayParam,
-    party: ArrayParam,
-    unit_name: ArrayParam,
-    min: ArrayParam,
-    max: ArrayParam
+    year: StringParam,
+    event: StringParam,
+    office: StringParam,
+    district_key: StringParam,
+    party: StringParam,
+    unit_name: StringParam,
+    min: StringParam,
+    max: StringParam
   })
 
   // on initial load
@@ -37,14 +37,14 @@ const App: React.FC = () => {
     // parse URL params into queries
     const nextQueries = deserializeQueriesToParams(query)
     dispatch(setQueriesFromUrl(nextQueries));
-  }, []);
+  }, [dispatch]);
 
   // when queries change
   useEffect(() => {
     // sync URL with queries in state
     const serializedQuery = serializeQueriesToParams(queries)
-    setQuery(serializedQuery)
-  }, [queries])
+    setQuery(serializedQuery, 'replace')
+  }, [queries, setQuery])
 
   useEffect(() => {
     const onResize = () => {

@@ -1,9 +1,9 @@
 import { combineReducers } from "redux";
 import type { State, Action, EDQuery } from "../types";
 import {RaceKeys} from '../types'
-import { Constants, queryOrder } from "../constants";
+import { Constants, queryOrder, ANY } from "../constants";
 import { rollup } from "d3-array";
-import { nextDropdownOptionsFromRace } from "../utils";
+import { filterReal, nextDropdownOptionsFromRace } from "../utils";
 
 const {
   GET_ASYNC_RESPONSE,
@@ -83,7 +83,7 @@ function dataReducer(state = InitialState.data, a: Action) {
             (d: any) => d.office,
             //@ts-ignore
             (d: any) => d.district_key,
-            (d: any) => d.party
+            (d: any) => d.party || ANY
           );
           return {
             ...state,
@@ -95,7 +95,7 @@ function dataReducer(state = InitialState.data, a: Action) {
           const nextQueryIndex = state.queries.findIndex(d =>
             d.race.length
               ? d.race
-                  .filter(e => e.key !== RaceKeys.year)
+                  .filter(filterReal)
                   .reduce(
                     (t, { key, value }) => t && apiQueryObj[key] === value,
                     true
@@ -179,7 +179,8 @@ function dataReducer(state = InitialState.data, a: Action) {
       // (the last level, Candidate, should always have multiple options because *there was a race*)
       let nextDropdownOptions = nextDropdownOptionsFromRace(
         state.menu,
-        nextQuery
+        nextQuery.race,
+        nextQuery.complete
       );
       while (nextDropdownOptions.length === 1) {
         nextQuery.race.push({
@@ -188,7 +189,8 @@ function dataReducer(state = InitialState.data, a: Action) {
         });
         nextDropdownOptions = nextDropdownOptionsFromRace(
           state.menu,
-          nextQuery
+          nextQuery.race,
+          nextQuery.complete
         );
       }
 

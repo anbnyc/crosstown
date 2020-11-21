@@ -1,53 +1,55 @@
 @import "../variables.scss";
 
-.query {
+.Query {
   position: relative;
-  &-tag {
-    position: absolute;
-    height: 12px;
-    width: 12px;
-    top: 6px;
-    right: 24px;
-    border: 1px solid black;
-    border-radius: 50%;
-    font-size: 8px;
-    line-height: 10px;
-    text-align: center;
-    font-weight: bold;
-  }
-  &-line {
-    margin: 2px 0px;
-    &-header {
-      display: inline-block;
-      width: 70px;
-      font-size: 12px;
-      padding-right: 10px;
-      text-align: right;
+  .query {
+    &-tag {
+      position: absolute;
+      height: 12px;
+      width: 12px;
+      top: 6px;
+      right: 24px;
+      border: 1px solid black;
+      border-radius: 50%;
+      font-size: 8px;
+      line-height: 10px;
+      text-align: center;
+      font-weight: bold;
+    }
+    &-line {
+      margin: 2px 0px;
+      &-header {
+        display: inline-block;
+        width: 70px;
+        font-size: 12px;
+        padding-right: 10px;
+        text-align: right;
 
-      @media (max-width: $max-width-mobile) {
-        font-size: 10px;
-        width: 50px;
+        @media (max-width: $max-width-mobile) {
+          font-size: 10px;
+          width: 50px;
+        }
       }
     }
-  }
 
-  &-short-line {
-    display: inline-block;
-    font-size: 12px;
-    padding-right: 10px;
-  }
-
-  &-toggle-open {
-    float: right;
-    cursor: pointer;
-  }
-
-  @media (max-width: $max-width-mobile) {
-    &-button {
-      font-size: 10px;
+    &-short-line {
+      display: inline-block;
+      font-size: 12px;
+      padding-right: 10px;
     }
-    &-dropdown {
-      font-size: 16px;
+
+    &-toggle-open {
+      float: right;
+      cursor: pointer;
+    }
+
+    @media (max-width: $max-width-mobile) {
+      &-button {
+        font-size: 10px;
+      }
+      &-dropdown {
+        font-size: 16px;
+      }
     }
   }
 }
