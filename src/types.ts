@@ -1,3 +1,9 @@
+// for each AD/ED, a queries-length array of their stats
+// used by Map tooltip
+export interface QueryLookup {
+  [key: string]: TooltipObject[]
+}
+
 export interface State {
   ui: {
     isMobile: boolean;
@@ -13,7 +19,8 @@ export interface State {
     matches: AD_ED[];
     queries: EDQuery[];
     menu: DataMenu;
-    allAdEds: AD_ED[]
+    allAdEds: AD_ED[];
+    lookup?: QueryLookup;
   };
 }
 
@@ -21,6 +28,12 @@ export type AD_ED = {
   AD: string;
   ED: string;
 };
+
+export enum NumFields {
+  TALLY_PCT = "tally_pct",
+  SUM_TALLY = "sum_tally",
+  TALLY = "tally",
+}
 
 export enum RaceKeys {
   year = "year",
@@ -36,12 +49,21 @@ export interface RaceQuery {
   value: string;
 }
 
+// row from results_candidate_pct table
+export interface DataObj {
+  ad: number;
+  ed: number;
+  [NumFields.TALLY_PCT]: number;
+  [NumFields.SUM_TALLY]: number;
+  [NumFields.TALLY]: number;
+}
+
 export interface EDQuery {
   race: RaceQuery[];
   complete: boolean;
   min?: number;
   max?: number;
-  data?: any[];
+  data?: DataObj[];
 }
 
 export interface URLParams {
@@ -68,7 +90,7 @@ export enum ActionTypes {
 }
 
 export interface TooltipObject {
-  sum_tally: number;
-  tally_pct: number;
-  tally: number;
+  [NumFields.TALLY_PCT]: number;
+  [NumFields.SUM_TALLY]: number;
+  [NumFields.TALLY]: number;
 }

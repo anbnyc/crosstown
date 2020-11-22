@@ -2,6 +2,7 @@ import { ThunkAction } from "redux-thunk";
 import { AnyAction } from "redux";
 import { ActionTypes, Action } from "../types";
 import { Constants } from "../constants";
+import { Dispatch } from "react";
 
 const {
   GET_ASYNC_RESPONSE,
@@ -31,28 +32,29 @@ const API_URL = process.env.REACT_APP_API_URL || "/api";
 const makeActionCreator = (type: string, ...argNames: string[]) => {
   return function(...args: any[]) {
     const action: Action = { type, payload: {} };
-    argNames.forEach((arg: string, index: number) => {
+    for (let index = 0; index < argNames.length; index++){
       action.payload[argNames[index]] = args[index];
-    });
+    }
     return action;
   };
 };
 
 export const asyncCallEndpoint = (
   endpoint: string,
-  query: any[] = []
-): ThunkAction<Promise<void>, {}, {}, AnyAction> => async (dispatch: any) => {
-  const queryString = query
-    .map(([k, v]: [string, string, string]) => `${k}=${v}`)
-    .join("&")
+  query: string[][] = []
+): ThunkAction<Promise<void>, unknown, unknown, AnyAction> =>
+  async (dispatch: Dispatch<AnyAction>) => {
+    const queryString = query
+      .map(([k, v]: string[]) => `${k}=${v}`)
+      .join("&");
 
-  fetch(`${API_URL}/${endpoint}?${queryString}`)
-    .catch(e => console.log("error in asyncCallEndpoint:", e))
-    .then(response => (response as Response).json())
-    .then(data => {
-      dispatch(getAsyncResponse(dataTypeLookup[endpoint], data, query));
-    });
-};
+    fetch(`${API_URL}/${endpoint}?${queryString}`)
+      .catch(e => console.log("error in asyncCallEndpoint:", e))
+      .then(response => (response as Response).json())
+      .then(data => {
+        dispatch(getAsyncResponse(dataTypeLookup[endpoint], data, query));
+      });
+  };
 
 export const togglePanel = makeActionCreator(ActionTypes.TOGGLE_PANEL);
 export const getAsyncResponse = makeActionCreator(
@@ -80,7 +82,10 @@ export const setQueryMinMax = makeActionCreator(
   "min",
   "max"
 );
-export const setQueriesFromUrl = makeActionCreator(SET_QUERIES_FROM_URL, "queries")
+export const setQueriesFromUrl = makeActionCreator(
+  SET_QUERIES_FROM_URL,
+  "queries")
+;
 export const resetAdeds = makeActionCreator(RESET_ADEDS);
 
 export const togglePanelOpen = makeActionCreator(TOGGLE_PANEL_OPEN);

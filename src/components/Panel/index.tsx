@@ -15,7 +15,6 @@ import {
   resetAdeds,
 } from "../../actions";
 import { filterReal, truthyOrZero } from "../../utils";
-import { queryOrder } from "../../constants";
 
 import Query from "../Query";
 
@@ -28,18 +27,18 @@ const Panel: React.FC = () => {
   const nMatches = useSelector((state: State) => state.data.matches.length);
   const isPanelOpen = useSelector((state: State) => state.ui.isPanelOpen);
 
-  // sync data with changed queries
+  // sync map data with changed queries
   useEffect(() => {
     const nextQueries = queries
-      .filter(d => d.complete && truthyOrZero(d.min) && truthyOrZero(d.max))
+      .filter(d => d.complete && truthyOrZero(d.min) && truthyOrZero(d.max));
 
     const nextQueriesFilter = nextQueries
       .map(d => [
         ...d.race
           .filter(filterReal)
           .map(({ key, value }) => [key, value]),
-        ["tally_pct-min", d.min],
-        ["tally_pct-max", d.max],
+        ["tally_pct-min", String(d.min)],
+        ["tally_pct-max", String(d.max)],
       ])
       .flat();
 
@@ -49,24 +48,14 @@ const Panel: React.FC = () => {
     } else {
       dispatch(asyncCallEndpoint("filter", nextQueriesFilter));
     }
+  }, [queries, dispatch]);
 
-    // TODO call "pct" for all queries without data
-
-  }, [queries, dispatch])
-
-  const addToNewQuery = (index: number, nextKey: RaceKeys, nextValue: string) => {
+  const addToNewQuery = (
+    index: number,
+    nextKey: RaceKeys,
+    nextValue: string
+  ) => {
     dispatch(setQueryProp(index, nextKey, nextValue));
-    // this prop will complete this query's raceQuery
-    if (queries[index].race.length + 1 === queryOrder.length) {
-      dispatch(
-        asyncCallEndpoint("pct", [
-          ...queries[index].race
-            .filter(filterReal)
-            .map(({ key, value }) => [key, value]),
-          [nextKey, nextValue],
-        ])
-      );
-    }
   };
 
   const removeFromNewQuery = (index: number, nextKey: RaceKeys) => {

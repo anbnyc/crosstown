@@ -17,13 +17,9 @@ export const Constants = {
 
   TOGGLE_PANEL_OPEN: "[UI] Toggle Panel Open",
   SET_IS_MOBILE: "[UI] Set Is Mobile",
-
-  TALLY_PCT: "tally_pct",
-  SUM_TALLY: "sum_tally",
-  TALLY: "tally",
 };
 
-export const ANY = "(Any)"
+export const ANY = "(Any)";
 
 export const queryOrder: {
   label: string;

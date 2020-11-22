@@ -22,10 +22,14 @@ const Query = ({
   removeCallback,
   addCallback,
   minMaxCallback,
-}: QueryProps) => {
+}: QueryProps): React.ReactElement => {
   const [isOpen, setIsOpen] = useState(true);
   const menu = useSelector((state: State) => state.data.menu);
-  const queryDropdownOptions = nextDropdownOptionsFromRace(menu, race, complete);
+  const queryDropdownOptions = nextDropdownOptionsFromRace(
+    menu,
+    race,
+    complete
+  );
 
   useEffect(() => {
     // always reopen if going into edit mode
@@ -33,6 +37,9 @@ const Query = ({
       setIsOpen(true);
     }
   }, [data]);
+
+  const hasMinMax =truthyOrZero(min) && truthyOrZero(max);
+  const minMaxValue = `${fmt(min || 0).slice(0, -1)}-${fmt(max || 0)}`;
 
   return (
     <div className="Query" key={`query-${queryId}`}>
@@ -63,6 +70,8 @@ const Query = ({
           </div>
         )
       )}
+      {!isOpen && hasMinMax &&
+        <div className="query-short-line">{minMaxValue}</div>}
       {queryDropdownOptions.length ? (
         <Dropdown>
           <Dropdown.Toggle
@@ -88,21 +97,26 @@ const Query = ({
           </Dropdown.Menu>
         </Dropdown>
       ) : null}
-      {data ? (
+      {data && isOpen && (
         <div className="query-line">
           <div className="query-line-header">
             Range
-            {truthyOrZero(min) && truthyOrZero(max) ? (
-              <div>{`${fmt(min || 0).slice(0, -1)}-${fmt(max || 0)}`}</div>
+            {hasMinMax ? (
+              <div>{minMaxValue}</div>
             ) : (
               <div>
                 <strong>Click/drag</strong>
               </div>
             )}
           </div>
-          <Histogram data={data} onBrushEnd={mm => minMaxCallback(queryId, mm)} />
+          <Histogram
+            data={data}
+            onBrushEnd={mm => minMaxCallback(queryId, mm)}
+            brushMin={min}
+            brushMax={max}
+          />
         </div>
-      ) : null}
+      )}
     </div>
   );
 };

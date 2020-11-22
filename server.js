@@ -1,7 +1,6 @@
 var express = require("express");
 var path = require("path");
 var cors = require("cors");
-var fs = require("fs");
 require("dotenv").config();
 
 const DEV_MODE = process.argv[2] === "dev";
@@ -57,9 +56,9 @@ const tableHandler = (table, rowMode) => (req, res) => {
 
   const q = {
     text: `SELECT * FROM ${table} ${WHERE.length ? "WHERE " + WHERE : ""};`
-  }
+  };
   if(rowMode){
-    q.rowMode = rowMode
+    q.rowMode = rowMode;
   }
   console.log("Making query: ", q);
 
@@ -67,7 +66,7 @@ const tableHandler = (table, rowMode) => (req, res) => {
     .query(q)
     .catch(e => console.error(e.stack))
     .then(data => {
-      if (rowMode === 'array') {
+      if (rowMode === "array") {
         res.send(JSON.stringify(data.rows.flat()));
       } else {
         res.send(JSON.stringify(data.rows));
@@ -118,7 +117,7 @@ app.get("/api/filter", (req, res) => {
 
   // see MATERIALIZED VIEW results_aded_list
   const q = {
-    rowMode: 'array',
+    rowMode: "array",
     text: `SELECT DISTINCT
     CONCAT(
       ad,
@@ -130,7 +129,7 @@ app.get("/api/filter", (req, res) => {
       )
     ) as aded
     FROM (${PREDICATE}) as foo;`,
-  }
+  };
 
   client
     .query(q)

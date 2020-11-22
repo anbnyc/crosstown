@@ -7,7 +7,7 @@ import { Provider } from "react-redux";
 import { createStore, applyMiddleware, compose } from "redux";
 import thunk from "redux-thunk";
 import rootReducer from "./reducers/";
-import {QueryParamProvider} from 'use-query-params'
+import {QueryParamProvider} from "use-query-params";
 
 //@ts-ignore
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
@@ -19,9 +19,9 @@ const store = createStore(
 ReactDOM.render(
   <QueryParamProvider>
 
-  <Provider store={store}>
-    <App />
-  </Provider>
+    <Provider store={store}>
+      <App />
+    </Provider>
   </QueryParamProvider>,
   document.getElementById("root")
 );

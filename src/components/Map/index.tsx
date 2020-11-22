@@ -1,13 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import type { State, EDQuery, TooltipObject } from "../../types";
+import type { State, TooltipObject } from "../../types";
 import mapboxgl, { Map as MapType } from "mapbox-gl";
 import { geoCentroid } from "d3";
 import "./styles.scss";
 
 import nyced from "./nyc.json";
 import nycad from "./nycad.json";
-import { zeroPad, fmt } from "../../utils";
+import { fmt } from "../../utils";
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_TOKEN as string;
 
@@ -15,73 +15,56 @@ const getTooltipHtml = (ed: string, adedData: TooltipObject[]): string =>
   `<div style="padding-top:5px;text-align:right;">
     ED: <strong>${ed}</strong>
     ${adedData
-      .map(
-        ({ tally, tally_pct, sum_tally }, i) =>
-          `<div class='popup-row'>
+    .map(
+      ({ tally, tally_pct, sum_tally }, i) =>
+        `<div class='popup-row'>
             <div class='query-tag'>
-              ${i + 1}${' '}
+              ${i + 1}${" "}
             </div>
             <div class='popup-column'>
               <div class='query-value query-value--bold'>
-                ${fmt(tally_pct)}${' '}
+                ${fmt(tally_pct)}${" "}
               </div>
               <div class='query-value'>
-                (${tally}/${sum_tally})
+                (${tally} out of ${sum_tally})
               </div>
             </div>
           </div>`
-      )
-      .join("")}
-  </div>`
+    )
+    .join("")}
+  </div>`;
 
 // https://docs.mapbox.com/help/tutorials/use-mapbox-gl-js-with-react/
 // https://docs.mapbox.com/mapbox-gl-js/example/using-box-queryrenderedfeatures/
-const MapComponent = () => {
+const MapComponent = (): React.ReactElement => {
   const mapSettings = useSelector((state: State) => {
     return state.ui.map;
   });
   const isMobile = useSelector((state: State) => state.ui.isMobile);
   const matches = useSelector((state: State) => state.data.matches);
-  const queries = useSelector((state: State) => state.data.queries);
+  const lookup = useSelector((state: State) => state.data.lookup);
   const mapContainer = useRef(null);
   const popupRef = useRef(null);
-  const [map, setMap] = useState<MapType | null>(null)
+  const [map, setMap] = useState<MapType | null>(null);
 
   useEffect(() => {
     if (map) {
-      const lookup: Map<string, TooltipObject[]> = new Map(
-        Object.entries(
-          queries
-            .filter(d => d.data && d.data.length)
-            .reduce((t: { [key: string]: any[] }, v: EDQuery) => {
-              return v.data?.reduce((tt, { ad, ed, tally_pct, tally, sum_tally }) => {
-                const prev = t[zeroPad(ad, ed)] || [];
-                return {
-                  ...tt,
-                  [zeroPad(ad, ed)]: [...prev, { tally_pct, tally, sum_tally }],
-                };
-              }, t);
-            }, {})
-        )
-      );
-
-    // https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/
+      // https://docs.mapbox.com/mapbox-gl-js/example/popup-on-click/
       //@ts-ignore
       map.on("click", "eds-in-filter", function(e: any) {
-        var coordinates = geoCentroid(e.features[0]);
         const { elect_dist } = e.features[0].properties;
-        const adedData = lookup.get(elect_dist) || [];
+        const adedData = lookup ? lookup[elect_dist] : [];
 
         //@ts-ignore
         popupRef.current
-          .setLngLat(coordinates)
+          .setLngLat(geoCentroid(e.features[0]))
           .setHTML(
             getTooltipHtml(elect_dist, adedData)
           )
           .addTo(map);
       });
     }
-  }, [queries]);
+  }, [map, lookup]);
 
   useEffect(() => {
     if (map !== null && matches.length) {
@@ -161,12 +144,11 @@ const MapComponent = () => {
       popupRef.current = new mapboxgl.Popup();
 
       map.on("styledata", () => {
-        setMap(map)
-      })
+        setMap(map);
+      });
     });
 
     return () => map.remove();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return <div className="Map" ref={mapContainer}></div>;
