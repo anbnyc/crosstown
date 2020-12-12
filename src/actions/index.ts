@@ -17,12 +17,14 @@ const {
   TOGGLE_PANEL_OPEN,
   SET_IS_MOBILE,
   SET_QUERIES_FROM_URL,
+  SET_QUERY_BY_UNIT_NAME,
   RESET_ADEDS
 } = Constants;
 
 const dataTypeLookup: { [key: string]: string } = {
   menu: SET_MENU_DATA,
-  pct: ADD_PCT_DATA,
+  "pct/party": ADD_PCT_DATA,
+  "pct/unitName": ADD_PCT_DATA,
   aded: SET_ADED_DATA,
   filter: SET_ADED_DATA,
 };
@@ -81,6 +83,11 @@ export const setQueryMinMax = makeActionCreator(
   "index",
   "min",
   "max"
+);
+export const setQueryByUnitName = makeActionCreator(
+  SET_QUERY_BY_UNIT_NAME,
+  "index",
+  "byUnitName"
 );
 export const setQueriesFromUrl = makeActionCreator(
   SET_QUERIES_FROM_URL,

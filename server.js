@@ -77,7 +77,12 @@ const tableHandler = (table, rowMode) => (req, res) => {
 
 app.get("/api/results", tableHandler("results"));
 app.get("/api/datasets", tableHandler("datasets"));
-app.get("/api/pct", tableHandler("results_candidate_pct"));
+app.get("/api/pct/:agg", (req, res) => {
+  if (req.params.agg === "unitName") {
+    return tableHandler("results_candidate_pct_by_unit_name")(req, res);
+  }
+  return tableHandler("results_candidate_pct")(req, res);
+});
 app.get("/api/menu", tableHandler("results_menu_options"));
 app.get("/api/aded", tableHandler("results_aded_list", "array"));
 

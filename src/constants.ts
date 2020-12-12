@@ -14,6 +14,7 @@ export const Constants = {
   TOGGLE_QUERY_COMPLETE: "[DATA] Toggle Query Complete",
   SET_QUERY_MIN_MAX: "[DATA] Set Query MinMax",
   SET_QUERIES_FROM_URL: "[DATA] Set Queries From URL",
+  SET_QUERY_BY_UNIT_NAME: "[DATA] Set Query byUnitName",
 
   TOGGLE_PANEL_OPEN: "[UI] Toggle Panel Open",
   SET_IS_MOBILE: "[UI] Set Is Mobile",

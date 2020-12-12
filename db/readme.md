@@ -24,6 +24,9 @@
 ** results_candidate_pct **
 Sum and percent of votes for candidates
 
+** results_candidate_pct_by_unit_name **
+Sum and percent of votes for candidates by candidate name, excluding party line. In other words, we aggregate together all the different lines the candidate ran on.
+
 ### qa functions
 
 #### datasets

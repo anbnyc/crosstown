@@ -3,6 +3,7 @@ import "./styles.scss";
 import { useSelector } from "react-redux";
 import Dropdown from "react-bootstrap/Dropdown";
 import Button from "react-bootstrap/Button";
+import Form from "react-bootstrap/Form";
 import { queryOrder } from "../../constants";
 import Histogram from "../Histogram";
 import { QueryProps, State } from "../../types";
@@ -17,19 +18,38 @@ import {
 } from "../../utils";
 
 const Query = ({
-  query: { data, complete, race, min, max },
+  query: { data, complete, race, min, max, byUnitName },
   queryId,
   removeCallback,
   addCallback,
   minMaxCallback,
+  onUnitNameToggle,
 }: QueryProps): React.ReactElement => {
   const [isOpen, setIsOpen] = useState(true);
   const menu = useSelector((state: State) => state.data.menu);
-  const queryDropdownOptions = nextDropdownOptionsFromRace(
+  let queryDropdownOptions = nextDropdownOptionsFromRace(
     menu,
     race,
     complete
   );
+
+  /**
+   * clip party names and show candidate name only if 3 conditions are met:
+   * user is on the last RaceKey, which is unit_name
+   * candidate appears for >1 party (ie list length is different after clipping)
+   * the user has toggled it on
+   */
+  const checkUnitNameValues = race.length >= queryOrder.length - 1;
+  let showByUnitNameToggle = false;
+  if (checkUnitNameValues) {
+    const unitNameValues = Array.from(
+      new Set(queryDropdownOptions.map(d => d.split(" (")[0]))
+    ).sort();
+    showByUnitNameToggle = unitNameValues.length < queryDropdownOptions.length;
+    if (showByUnitNameToggle && byUnitName){
+      queryDropdownOptions = unitNameValues;
+    }
+  }
 
   useEffect(() => {
     // always reopen if going into edit mode
@@ -38,7 +58,7 @@ const Query = ({
     }
   }, [data]);
 
-  const hasMinMax =truthyOrZero(min) && truthyOrZero(max);
+  const hasMinMax = truthyOrZero(min) && truthyOrZero(max);
   const minMaxValue = `${fmt(min || 0).slice(0, -1)}-${fmt(max || 0)}`;
 
   return (
@@ -73,7 +93,7 @@ const Query = ({
       {!isOpen && hasMinMax &&
         <div className="query-short-line">{minMaxValue}</div>}
       {queryDropdownOptions.length ? (
-        <Dropdown>
+        <div className="query-dropdown-toggle"><Dropdown>
           <Dropdown.Toggle
             variant="primary"
             id="dropdown-basic"
@@ -96,6 +116,15 @@ const Query = ({
             ))}
           </Dropdown.Menu>
         </Dropdown>
+        {showByUnitNameToggle && <Form><Form.Check
+          type="switch"
+          id="unit-name-toggle"
+          label="Group by candidate, not party"
+          onChange={(e: React.FormEvent) => {
+            onUnitNameToggle(queryId, (e.target as HTMLInputElement).checked);
+          }}
+        /></Form>}
+        </div>
       ) : null}
       {data && isOpen && (
         <div className="query-line">

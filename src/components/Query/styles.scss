@@ -43,6 +43,13 @@
       cursor: pointer;
     }
 
+    &-dropdown-toggle > * {
+      display: inline-block;
+    }
+    &-dropdown-toggle > form {
+      margin-left: 12px;
+    }
+
     @media (max-width: $max-width-mobile) {
       &-button {
         font-size: 10px;

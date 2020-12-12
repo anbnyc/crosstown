@@ -10,14 +10,14 @@ import type {
 } from "./types";
 import { RaceKeys } from "./types";
 
-export const displayFn = (k: RaceKeys, d: any) =>
+export const displayFn = (k: RaceKeys, d: string): string =>
   k === RaceKeys.event ? d.replace("Election ", "") : displayBlankAsNA(d);
-export const displayBlankAsNA = (d: any) => d || "N/A";
+const displayBlankAsNA = (d: string): string => d || "N/A";
 
 export const zeroPad = (ad: number, ed: number): string =>
   `${ad}${ed > 99 ? "" : ed > 9 ? "0" : "00"}${ed}`;
 
-export const truthyOrZero = (d: number | undefined) => !!d || d === 0;
+export const truthyOrZero = (d: number | undefined): boolean => !!d || d === 0;
 
 export const nextDropdownOptionsFromRace = (
   menu: DataMenu,

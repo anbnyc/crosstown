@@ -63,6 +63,60 @@ ON
 	and candidate_level.district_key = aggregate_level.district_key
 WHERE candidate_level.unit_name not in ('Public Counter', 'Manually Counted Emergency', 'Absentee / Military', 'Affidavit', 'Federal');
 
+CREATE MATERIALIZED VIEW results_candidate_pct_by_unit_name AS
+SELECT
+	candidate_level.ad,
+	candidate_level.ed,
+	candidate_level.event,
+	candidate_level.office,
+	candidate_level.district_key,
+	candidate_level.unit_name,
+	candidate_level.tally,
+	aggregate_level.sum_tally,
+	COALESCE(
+		CAST(
+			CAST(candidate_level.tally as float) / CAST(NULLIF(aggregate_level.sum_tally, 0) as float)
+			as decimal(5,4)
+		),
+		0
+	) as tally_pct
+FROM (
+	SELECT
+		ad,
+		ed,
+		event,
+		office,
+		SPLIT_PART(unit_name, ' (', 1) as unit_name,
+		district_key,
+		sum(tally) as tally
+	FROM results
+	WHERE party is null
+	GROUP BY
+		ad,
+		ed,
+		event,
+		office,
+		SPLIT_PART(unit_name, ' (', 1),
+		district_key
+) as candidate_level
+LEFT JOIN (
+	SELECT ad, ed, event, office, district_key, sum(tally) as sum_tally
+	FROM (
+		SELECT ad, ed, event, office, district_key, unit_name, tally
+		FROM results
+		WHERE unit_name not in ('Public Counter', 'Manually Counted Emergency', 'Absentee / Military', 'Affidavit', 'Federal')
+			AND party is null
+	) as foo
+	GROUP BY ad, ed, event, office, district_key
+) as aggregate_level
+ON
+	candidate_level.ad = aggregate_level.ad
+	and candidate_level.ed = aggregate_level.ed
+	and candidate_level.event = aggregate_level.event
+	and candidate_level.office = aggregate_level.office
+	and candidate_level.district_key = aggregate_level.district_key
+WHERE candidate_level.unit_name not in ('Public Counter', 'Manually Counted Emergency', 'Absentee / Military', 'Affidavit', 'Federal');
+
 CREATE MATERIALIZED VIEW results_menu_options AS
 SELECT DISTINCT
 	event,

@@ -64,6 +64,7 @@ export interface EDQuery {
   min?: number;
   max?: number;
   data?: DataObj[];
+  byUnitName?: boolean;
 }
 
 export interface URLParams {
@@ -83,6 +84,7 @@ export interface QueryProps {
   addCallback: (i: number, k: RaceKeys, option: string) => void;
   removeCallback: (i: number, k: RaceKeys) => void;
   minMaxCallback: (i: number, [m, n]: [number, number]) => void;
+  onUnitNameToggle: (i: number, byUnitName: boolean) => void;
 }
 
 export enum ActionTypes {

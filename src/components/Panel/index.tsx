@@ -13,6 +13,7 @@ import {
   removeQuery,
   addQuery,
   resetAdeds,
+  setQueryByUnitName,
 } from "../../actions";
 import { filterReal, truthyOrZero } from "../../utils";
 
@@ -78,6 +79,10 @@ const Panel: React.FC = () => {
     dispatch(setQueryMinMax(index, ...minMax));
   };
 
+  const onUnitNameToggle = (index: number, byUnitName: boolean) => {
+    dispatch(setQueryByUnitName(index, byUnitName));
+  };
+
   const onAddQuery = () => {
     dispatch(addQuery());
   };
@@ -100,6 +105,7 @@ const Panel: React.FC = () => {
               addCallback={addToNewQuery}
               removeCallback={removeFromNewQuery}
               minMaxCallback={applyMinMax}
+              onUnitNameToggle={onUnitNameToggle}
             />
             {queries.length > 1 && i < queries.length - 1 ? (
               <div>

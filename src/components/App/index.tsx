@@ -61,7 +61,7 @@ const App: React.FC = () => {
       .filter(q => isQueryComplete(q) && !q.data)
       .forEach(q => {
         dispatch(
-          asyncCallEndpoint("pct",
+          asyncCallEndpoint(`pct/${q.byUnitName ? "unitName" : "party"}`,
             q.race
               .filter(filterReal)
               .map(({ key, value }) => [key, value])

@@ -8,6 +8,7 @@ import {
   getLookupFromQueries,
   isQueryComplete
 } from "../utils";
+import { queries } from "@testing-library/react";
 
 const {
   GET_ASYNC_RESPONSE,
@@ -23,6 +24,7 @@ const {
   TOGGLE_PANEL_OPEN,
   SET_IS_MOBILE,
   SET_QUERIES_FROM_URL,
+  SET_QUERY_BY_UNIT_NAME,
 } = Constants;
 
 const initMobile = window.innerWidth <= 768;
@@ -242,6 +244,20 @@ function dataReducer(state = InitialState.data, a: Action) {
           ...currentQuery,
           min: min,
           max: max,
+        },
+        ...state.queries.slice(index + 1),
+      ],
+    };
+  }
+  case SET_QUERY_BY_UNIT_NAME: {
+    const { index, byUnitName } = a.payload;
+    return {
+      ...state,
+      queries: [
+        ...state.queries.slice(0, index),
+        {
+          ...state.queries[index],
+          byUnitName
         },
         ...state.queries.slice(index + 1),
       ],
